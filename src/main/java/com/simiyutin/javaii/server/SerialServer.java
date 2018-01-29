@@ -3,6 +3,7 @@ package com.simiyutin.javaii.server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class SerialServer implements Server {
     private final ServerSocket serverSocket;
@@ -11,6 +12,7 @@ public class SerialServer implements Server {
         this.serverSocket = new ServerSocket(port);
     }
 
+    @Override
     public void start() {
         while (true) {
             try {
@@ -23,12 +25,30 @@ public class SerialServer implements Server {
         }
     }
 
+    // up
     private void handleTCP(Socket socket) throws IOException {
+        //read
         DataInputStream dis = new DataInputStream(socket.getInputStream());
-        int val = dis.readInt();
-        System.out.println(String.format("hello! val=%d", val));
+        int n = dis.readInt();
+        int[] array = new int[n];
+        for (int i = 0; i < n; i++) {
+            array[i] = dis.readInt();
+        }
 
+        //process
+        sort(array);
+
+        //write
         DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-        dos.writeInt(val);
+        dos.writeInt(n);
+
+        for (int val : array) {
+            dos.writeInt(val);
+        }
+    }
+
+    // up
+    private void sort(int[] array) {
+        Arrays.sort(array);
     }
 }

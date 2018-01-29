@@ -29,15 +29,9 @@ public class Main {
             e.printStackTrace();
         }
 
-        Socket socket = new Socket(host, port);
-        int val = 300;
-        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-        dos.writeInt(val);
-        DataInputStream dis = new DataInputStream(socket.getInputStream());
-        int val2 = dis.readInt();
-        if (val != val2) {
-            throw new AssertionError("azaza lalka");
-        }
+
+        SerialClient client = new SerialClient();
+        client.start(host, port);
         System.out.println("all right!");
     }
 }
