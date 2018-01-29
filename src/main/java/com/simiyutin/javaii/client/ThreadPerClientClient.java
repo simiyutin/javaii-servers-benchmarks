@@ -7,27 +7,30 @@ import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-public class SerialClient implements Client {
+public class ThreadPerClientClient implements Client {
+
     private String host;
     private int port;
 
-    public SerialClient(String host, int port) {
+    public ThreadPerClientClient(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
     public void start() throws IOException {
+        Socket socket = new Socket(host, port);
         for (int i = 0; i < X; i++) {
-            Socket socket = new Socket(host, port);
             communicate(socket);
             if (i != X - 1) {
-                try {TimeUnit.MILLISECONDS.sleep(DELTA_MILLIS);} catch (InterruptedException ignored) {}
+                try {
+                    TimeUnit.MILLISECONDS.sleep(DELTA_MILLIS);} catch (InterruptedException ignored) {}
             }
             System.out.println(String.format("iter %d: OK", i));
         }
 
     }
 
+    // TODO REMOVE CLONE
     private void communicate(Socket socket) throws IOException {
         // request
         int[] array = IntStream.range(0, N).

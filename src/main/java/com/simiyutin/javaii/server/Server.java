@@ -1,5 +1,11 @@
 package com.simiyutin.javaii.server;
 
-public interface Server {
-    void start();
+import java.util.Arrays;
+
+public abstract class Server {
+    public abstract void start();
+
+    protected void sort(int[] array) {
+        Arrays.sort(array);
+    }
 }

@@ -1,14 +1,17 @@
 package com.simiyutin.javaii.server;
 
-import java.io.*;
+import com.simiyutin.javaii.client.SerialClient;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
-public class SerialServer extends Server {
+public class ThreadPerClientServer extends Server {
     private final ServerSocket serverSocket;
 
-    public SerialServer(int port) throws IOException {
+    public ThreadPerClientServer(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
     }
 
@@ -17,15 +20,23 @@ public class SerialServer extends Server {
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
-                handleTCP(socket);
-                socket.close();
+                new Thread(() -> {
+                    while (true) {
+                        try {
+                            handleTCP(socket);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    // up
+    // todo REMOVE CLONE
     private void handleTCP(Socket socket) throws IOException {
         //read
         DataInputStream dis = new DataInputStream(socket.getInputStream());
@@ -46,4 +57,5 @@ public class SerialServer extends Server {
             dos.writeInt(val);
         }
     }
+
 }

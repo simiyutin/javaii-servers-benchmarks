@@ -2,16 +2,16 @@ package com.simiyutin.javaii.client;
 
 import com.simiyutin.javaii.server.SerialServer;
 import com.simiyutin.javaii.server.Server;
+import com.simiyutin.javaii.server.ThreadPerClientServer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public class Main {
 
@@ -22,12 +22,31 @@ public class Main {
         String host = "localhost";
         int port = 11111;
 
-        new Thread(() -> {
+        Supplier<Server> serverSupplier = () -> {
             try {
-                Server server = new SerialServer(port);
-                server.start();
+                return new ThreadPerClientServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            return null;
+        };
+
+        Supplier<Client> clientSupplier = () -> new ThreadPerClientClient(host, port);
+
+        runTest(serverSupplier, clientSupplier);
+    }
+
+
+
+    private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier) {
+
+
+        new Thread(() -> {
+            Server server = serverSupplier.get();
+            if (server != null) {
+                server.start();
+            } else {
+                throw new AssertionError("failed to init server");
             }
         }).start();
 
@@ -48,9 +67,9 @@ public class Main {
                 } catch (InterruptedException | BrokenBarrierException e) {
                     e.printStackTrace();
                 }
-                SerialClient client = new SerialClient();
+                Client client = clientSupplier.get();
                 try {
-                    client.start(host, port);
+                    client.start();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -67,6 +86,5 @@ public class Main {
         }
 
         System.out.println("all right!");
-
     }
 }
