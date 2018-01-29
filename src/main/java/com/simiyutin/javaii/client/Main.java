@@ -1,11 +1,9 @@
 package com.simiyutin.javaii.client;
 
-import com.simiyutin.javaii.server.SerialServer;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.ThreadPerClientServer;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -36,11 +34,7 @@ public class Main {
         runTest(serverSupplier, clientSupplier);
     }
 
-
-
     private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier) {
-
-
         new Thread(() -> {
             Server server = serverSupplier.get();
             if (server != null) {

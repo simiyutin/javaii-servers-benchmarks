@@ -1,7 +1,5 @@
 package com.simiyutin.javaii.server;
 
-import com.simiyutin.javaii.client.SerialClient;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
