@@ -1,29 +1,39 @@
 package com.simiyutin.javaii.server.non_blocking;
 
+import com.simiyutin.javaii.server.SortAlgorithm;
+
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class SocketChannelsProcessor implements Runnable {
     private final Queue<SocketChannel> channelsQueue;
+    private final Queue<Message> messageQueue;
     private final Selector readSelector;
     private final Selector writeSelector;
+    private final ExecutorService threadPool;
 
 
     public SocketChannelsProcessor(Queue<SocketChannel> channelsQueue) throws IOException {
         this.channelsQueue = channelsQueue;
+        this.messageQueue = new ArrayBlockingQueue<>(1024);
         this.readSelector = Selector.open();
         this.writeSelector = Selector.open();
+        this.threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     @Override
     public void run() {
         while (true) {
             try{
-                executeCycle();
+                executeNonBlockingCycle();
             } catch(IOException e){
                 e.printStackTrace();
             }
@@ -36,9 +46,12 @@ public class SocketChannelsProcessor implements Runnable {
         }
     }
 
-    private void executeCycle() throws IOException {
+    private void executeNonBlockingCycle() throws IOException {
         registerNewChannels();
-        readFromSockets();
+        readFromChannels();
+
+        registerReadyTasks();
+        writeToChannels();
     }
 
     private void registerNewChannels() throws IOException {
@@ -51,7 +64,7 @@ public class SocketChannelsProcessor implements Runnable {
         }
     }
 
-    private void readFromSockets() throws IOException {
+    private void readFromChannels() throws IOException {
         int readReady = readSelector.selectNow();
         if (readReady > 0) {
             Set<SelectionKey> keys = readSelector.selectedKeys();
@@ -69,10 +82,54 @@ public class SocketChannelsProcessor implements Runnable {
         SocketChannelReader reader = (SocketChannelReader) key.attachment();
         reader.read(channel);
         List<List<Integer>> fullMessages = reader.getFullMessages();
+
         if (fullMessages.size() > 0) {
             System.out.println("got messages!");
             System.out.println(fullMessages);
         }
+        for (List<Integer> message : fullMessages) {
+//            threadPool.submit(() -> { //todo ordering of output messages
+                SortAlgorithm.sort(message);
+                messageQueue.add(new Message(message, channel));
+//            });
+        }
+    }
+
+    private void registerReadyTasks() throws ClosedChannelException {
+        Message message = messageQueue.poll();
+
+        while (message != null) {
+            List<Integer> data = message.data;
+            SocketChannel channel = message.channel;
+            SelectionKey key = channel.register(writeSelector, SelectionKey.OP_WRITE);
+            if (key.attachment() == null) {
+                key.attach(new SocketChannelWriter());
+            }
+            SocketChannelWriter writer = (SocketChannelWriter) key.attachment();
+            writer.addData(data);
+
+            message = messageQueue.poll();
+        }
+    }
+
+    private void writeToChannels() throws IOException {
+        int writeReady = writeSelector.selectNow();
+        if (writeReady > 0) {
+            Set<SelectionKey> keys = writeSelector.selectedKeys();
+            Iterator<SelectionKey> it = keys.iterator();
+            while (it.hasNext()) {
+                SelectionKey key = it.next();
+                writeToSocket(key);
+                it.remove();
+            }
+        }
+    }
+
+    private void writeToSocket(SelectionKey key) throws IOException {
+        SocketChannel channel = (SocketChannel) key.channel();
+        SocketChannelWriter writer = (SocketChannelWriter) key.attachment();
+        Runnable unsubscribeHook = key::cancel;
+        writer.write(channel, unsubscribeHook);
     }
 
 }

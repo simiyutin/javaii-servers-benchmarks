@@ -44,6 +44,7 @@ public class ThreadPerClientClient implements Client {
         }
 
         // response
+        // todo check if it is the same array but sorted
         DataInputStream dis = new DataInputStream(socket.getInputStream());
         int n = dis.readInt();
         int predVal = dis.readInt();

@@ -45,7 +45,7 @@ public class ThreadPerClientServer extends Server {
         }
 
         //process
-        sort(array);
+        SortAlgorithm.sort(array);
 
         //write
         DataOutputStream dos = new DataOutputStream(socket.getOutputStream());

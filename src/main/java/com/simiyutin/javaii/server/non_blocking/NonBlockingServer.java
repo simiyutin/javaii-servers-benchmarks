@@ -15,14 +15,12 @@ public class NonBlockingServer extends Server {
 
     private final ServerSocketChannel serverSocket;
     private final Queue<SocketChannel> channelsQueue;
-    private final ExecutorService threadPool;
     private final int CHANNELS_QUEUE_CAPACITY = 1024;
 
     public NonBlockingServer(int port) throws IOException {
         this.serverSocket = ServerSocketChannel.open();
         this.serverSocket.bind(new InetSocketAddress(port));
         this.channelsQueue = new ArrayBlockingQueue<>(CHANNELS_QUEUE_CAPACITY);
-        this.threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     @Override

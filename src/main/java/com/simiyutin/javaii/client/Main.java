@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 public class Main {
 
     // количесвто одновременно работающих лиентов
-    private static final int M = 1;
+    private static final int M = 10;
 
     public static void main(String[] args) throws IOException {
         String host = "localhost";
