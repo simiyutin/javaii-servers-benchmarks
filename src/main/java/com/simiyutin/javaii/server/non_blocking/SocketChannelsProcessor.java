@@ -37,16 +37,17 @@ public class SocketChannelsProcessor implements Runnable {
     }
 
     private void executeCycle() throws IOException {
-        registerNewChannnel();
+        registerNewChannels();
         readFromSockets();
     }
 
-    private void registerNewChannnel() throws IOException {
+    private void registerNewChannels() throws IOException {
         SocketChannel channel = channelsQueue.poll();
-        if (channel != null) {
+        while (channel != null) {
             channel.configureBlocking(false);
             SelectionKey key = channel.register(readSelector, SelectionKey.OP_READ);
             key.attach(new SocketChannelReader());
+            channel = channelsQueue.poll();
         }
     }
 
