@@ -7,11 +7,11 @@ import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-public class SerialClient implements Client {
+public class TCPStatelessClient implements Client {
     private String host;
     private int port;
 
-    public SerialClient(String host, int port) {
+    public TCPStatelessClient(String host, int port) {
         this.host = host;
         this.port = port;
     }

@@ -1,4 +1,4 @@
-package com.simiyutin.javaii.server.non_blocking;
+package com.simiyutin.javaii.server.nonblocking;
 
 import com.simiyutin.javaii.server.Server;
 
@@ -8,8 +8,6 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class NonBlockingServer extends Server {
 

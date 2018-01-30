@@ -1,8 +1,7 @@
 package com.simiyutin.javaii.client;
 
 import com.simiyutin.javaii.server.Server;
-import com.simiyutin.javaii.server.ThreadPerClientServer;
-import com.simiyutin.javaii.server.non_blocking.NonBlockingServer;
+import com.simiyutin.javaii.server.nonblocking.NonBlockingServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class Main {
             return null;
         };
 
-        Supplier<Client> clientSupplier = () -> new ThreadPerClientClient(host, port);
+        Supplier<Client> clientSupplier = () -> new TCPStatefulClient(host, port);
 
         runTest(serverSupplier, clientSupplier);
     }

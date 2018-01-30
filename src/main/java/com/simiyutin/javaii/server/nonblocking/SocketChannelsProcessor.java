@@ -1,4 +1,4 @@
-package com.simiyutin.javaii.server.non_blocking;
+package com.simiyutin.javaii.server.nonblocking;
 
 import com.simiyutin.javaii.server.SortAlgorithm;
 

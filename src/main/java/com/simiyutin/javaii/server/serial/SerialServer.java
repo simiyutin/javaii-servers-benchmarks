@@ -1,4 +1,7 @@
-package com.simiyutin.javaii.server;
+package com.simiyutin.javaii.server.serial;
+
+import com.simiyutin.javaii.server.Server;
+import com.simiyutin.javaii.server.SortAlgorithm;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

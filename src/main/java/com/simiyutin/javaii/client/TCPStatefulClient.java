@@ -7,12 +7,12 @@ import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-public class ThreadPerClientClient implements Client {
+public class TCPStatefulClient implements Client {
 
     private String host;
     private int port;
 
-    public ThreadPerClientClient(String host, int port) {
+    public TCPStatefulClient(String host, int port) {
         this.host = host;
         this.port = port;
     }

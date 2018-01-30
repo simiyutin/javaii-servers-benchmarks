@@ -1,4 +1,4 @@
-package com.simiyutin.javaii.server.non_blocking;
+package com.simiyutin.javaii.server.nonblocking;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

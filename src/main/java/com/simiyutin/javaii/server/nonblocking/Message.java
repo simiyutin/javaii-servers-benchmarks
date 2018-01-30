@@ -1,7 +1,6 @@
-package com.simiyutin.javaii.server.non_blocking;
+package com.simiyutin.javaii.server.nonblocking;
 
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Message {
