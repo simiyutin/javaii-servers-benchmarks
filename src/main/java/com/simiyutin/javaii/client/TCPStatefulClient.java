@@ -27,7 +27,7 @@ public class TCPStatefulClient implements Client {
             }
             System.out.println(String.format("iter %d: OK", i));
         }
-
+        socket.close();
     }
 
     // TODO REMOVE CLONE

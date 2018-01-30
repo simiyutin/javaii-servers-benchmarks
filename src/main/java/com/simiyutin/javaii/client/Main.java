@@ -2,6 +2,7 @@ package com.simiyutin.javaii.client;
 
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.nonblocking.NonBlockingServer;
+import com.simiyutin.javaii.server.threadpool.ThreadPoolServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new NonBlockingServer(port);
+                return new ThreadPoolServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
