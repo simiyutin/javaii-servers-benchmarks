@@ -26,7 +26,7 @@ public class SocketChannelsProcessor implements Runnable {
         this.messageQueue = new ArrayBlockingQueue<>(1024);
         this.readSelector = Selector.open();
         this.writeSelector = Selector.open();
-        this.threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        this.threadPool = Executors.newCachedThreadPool();
     }
 
     @Override
@@ -88,10 +88,11 @@ public class SocketChannelsProcessor implements Runnable {
             System.out.println(fullMessages);
         }
         for (List<Integer> message : fullMessages) {
-//            threadPool.submit(() -> { //todo ordering of output messages
+            // не нужно упорядочивать ответы, потому что клиент шлет запрос и ждет
+            threadPool.submit(() -> {
                 SortAlgorithm.sort(message);
                 messageQueue.add(new Message(message, channel));
-//            });
+            });
         }
     }
 
