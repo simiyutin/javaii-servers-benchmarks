@@ -2,6 +2,7 @@ package com.simiyutin.javaii.client;
 
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.ThreadPerClientServer;
+import com.simiyutin.javaii.server.non_blocking.NonBlockingServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.function.Supplier;
 public class Main {
 
     // количесвто одновременно работающих лиентов
-    private static final int M = 10;
+    private static final int M = 1;
 
     public static void main(String[] args) throws IOException {
         String host = "localhost";
@@ -22,7 +23,7 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new ThreadPerClientServer(port);
+                return new NonBlockingServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -38,7 +39,11 @@ public class Main {
         new Thread(() -> {
             Server server = serverSupplier.get();
             if (server != null) {
-                server.start();
+                try {
+                    server.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else {
                 throw new AssertionError("failed to init server");
             }
