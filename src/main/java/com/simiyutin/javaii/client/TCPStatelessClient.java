@@ -1,5 +1,6 @@
 package com.simiyutin.javaii.client;
 
+import com.simiyutin.javaii.client.communicators.TCPSerialCommunicator;
 import com.simiyutin.javaii.proto.MessageProtos;
 
 import java.io.DataInputStream;
@@ -23,33 +24,12 @@ public class TCPStatelessClient implements Client {
     public void start() throws IOException {
         for (int i = 0; i < X; i++) {
             Socket socket = new Socket(host, port);
-            communicate(socket);
+            TCPSerialCommunicator.communicate(socket, N);
             if (i != X - 1) {
                 try {TimeUnit.MILLISECONDS.sleep(DELTA_MILLIS);} catch (InterruptedException ignored) {}
             }
             System.out.println(String.format("iter %d: OK", i));
         }
 
-    }
-
-    private void communicate(Socket socket) throws IOException {
-        // request
-        List<Integer> array = IntStream.range(0, N).
-                map(i -> ~i).sorted().map(i -> ~i) // reverse order
-                .boxed().collect(Collectors.toList());
-
-        MessageProtos.Message message = MessageProtos.Message.newBuilder()
-                .addAllArray(array)
-                .build();
-        message.writeDelimitedTo(socket.getOutputStream());
-
-        // response
-        MessageProtos.Message result = MessageProtos.Message.parseDelimitedFrom(socket.getInputStream());
-        List<Integer> resultArray = result.getArrayList();
-        for (int i = 1; i < resultArray.size(); ++i) {
-            if (resultArray.get(i - 1) > resultArray.get(i)) {
-                throw new AssertionError("azaza lalka");
-            }
-        }
     }
 }

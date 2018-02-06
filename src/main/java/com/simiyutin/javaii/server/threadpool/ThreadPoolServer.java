@@ -2,6 +2,7 @@ package com.simiyutin.javaii.server.threadpool;
 
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.server.handlers.TCPSerialHandler;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -33,7 +34,7 @@ public class ThreadPoolServer extends Server {
                 threadPool.submit(() -> {
                     while (true) {
                         try {
-                            handleTCP(socket);
+                            TCPSerialHandler.handle(socket);
                         } catch (IOException e) {
                             e.printStackTrace();
                             return; // todo отследить, когда именно отвалится соединение, а не что либо еще.
@@ -45,27 +46,6 @@ public class ThreadPoolServer extends Server {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    private void handleTCP(Socket socket) throws IOException {
-        //read
-        DataInputStream dis = new DataInputStream(socket.getInputStream());
-        int n = dis.readInt();
-        int[] array = new int[n];
-        for (int i = 0; i < n; i++) {
-            array[i] = dis.readInt();
-        }
-
-        //process
-        SortAlgorithm.sort(array);
-
-        //write
-        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-        dos.writeInt(n);
-
-        for (int val : array) {
-            dos.writeInt(val);
         }
     }
 }

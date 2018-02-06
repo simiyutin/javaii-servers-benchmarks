@@ -2,6 +2,7 @@ package com.simiyutin.javaii.server.threadperclient;
 
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.server.handlers.TCPSerialHandler;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -24,7 +25,7 @@ public class ThreadPerClientServer extends Server {
                 new Thread(() -> {
                     while (true) {
                         try {
-                            handleTCP(socket);
+                            TCPSerialHandler.handle(socket);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -36,27 +37,4 @@ public class ThreadPerClientServer extends Server {
             }
         }
     }
-
-    // todo REMOVE CLONE
-    private void handleTCP(Socket socket) throws IOException {
-        //read
-        DataInputStream dis = new DataInputStream(socket.getInputStream());
-        int n = dis.readInt();
-        int[] array = new int[n];
-        for (int i = 0; i < n; i++) {
-            array[i] = dis.readInt();
-        }
-
-        //process
-        SortAlgorithm.sort(array);
-
-        //write
-        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-        dos.writeInt(n);
-
-        for (int val : array) {
-            dos.writeInt(val);
-        }
-    }
-
 }

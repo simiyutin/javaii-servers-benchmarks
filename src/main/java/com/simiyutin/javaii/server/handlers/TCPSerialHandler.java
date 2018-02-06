@@ -12,6 +12,9 @@ public class TCPSerialHandler {
     public static void handle(Socket socket) throws IOException {
         //read
         MessageProtos.Message request = MessageProtos.Message.parseDelimitedFrom(socket.getInputStream());
+        if (request == null) { // todo google it
+            return;
+        }
         List<Integer> array = new ArrayList<>(request.getArrayList());
 
         //process

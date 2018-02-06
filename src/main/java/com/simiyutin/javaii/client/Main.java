@@ -5,6 +5,7 @@ import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.async.AsyncServer;
 import com.simiyutin.javaii.server.nonblocking.NonBlockingServer;
 import com.simiyutin.javaii.server.serial.SerialServer;
+import com.simiyutin.javaii.server.threadperclient.ThreadPerClientServer;
 import com.simiyutin.javaii.server.threadpool.ThreadPoolServer;
 import com.simiyutin.javaii.server.udp_threadperrequest.UDPThreadPerRequestServer;
 import com.simiyutin.javaii.server.udp_threadpool.UDPThreadpoolServer;
@@ -29,14 +30,14 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new SerialServer(port);
+                return new ThreadPerClientServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
         };
 
-        Supplier<Client> clientSupplier = () -> new TCPStatelessClient(host, port);
+        Supplier<Client> clientSupplier = () -> new TCPStatefulClient(host, port);
 
         runTest(serverSupplier, clientSupplier);
     }
