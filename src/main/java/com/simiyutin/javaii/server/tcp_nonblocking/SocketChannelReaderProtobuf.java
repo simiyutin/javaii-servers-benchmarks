@@ -1,8 +1,7 @@
-package com.simiyutin.javaii.server.nonblocking;
+package com.simiyutin.javaii.server.tcp_nonblocking;
 
 import com.simiyutin.javaii.proto.MessageProtos;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;

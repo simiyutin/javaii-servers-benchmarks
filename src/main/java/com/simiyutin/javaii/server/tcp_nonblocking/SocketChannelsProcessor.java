@@ -1,4 +1,4 @@
-package com.simiyutin.javaii.server.nonblocking;
+package com.simiyutin.javaii.server.tcp_nonblocking;
 
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.SortAlgorithm;

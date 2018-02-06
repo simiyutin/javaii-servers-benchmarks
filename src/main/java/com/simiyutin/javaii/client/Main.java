@@ -1,14 +1,10 @@
 package com.simiyutin.javaii.client;
 
-import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.Server;
-import com.simiyutin.javaii.server.async.AsyncServer;
-import com.simiyutin.javaii.server.nonblocking.NonBlockingServer;
-import com.simiyutin.javaii.server.serial.SerialServer;
-import com.simiyutin.javaii.server.threadperclient.ThreadPerClientServer;
-import com.simiyutin.javaii.server.threadpool.ThreadPoolServer;
-import com.simiyutin.javaii.server.udp_threadperrequest.UDPThreadPerRequestServer;
-import com.simiyutin.javaii.server.udp_threadpool.UDPThreadpoolServer;
+import com.simiyutin.javaii.server.tcp_async.TCPAsyncServer;
+import com.simiyutin.javaii.server.tcp_nonblocking.TCPNonBlockingServer;
+import com.simiyutin.javaii.server.tcp_threadperclient.TCPThreadPerClientServer;
+import com.simiyutin.javaii.server.tcp_threadpool.TCPThreadPoolServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +26,7 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new NonBlockingServer(port);
+                return new TCPAsyncServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }

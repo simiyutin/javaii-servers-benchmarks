@@ -1,4 +1,4 @@
-package com.simiyutin.javaii.server.async;
+package com.simiyutin.javaii.server.tcp_async;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.simiyutin.javaii.proto.MessageProtos;
@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class AsyncServer extends Server {
+public class TCPAsyncServer extends Server {
     private final AsynchronousServerSocketChannel serverSocket;
 
-    public AsyncServer(int port) throws IOException {
+    public TCPAsyncServer(int port) throws IOException {
         this.serverSocket = AsynchronousServerSocketChannel.open();
         this.serverSocket.bind(new InetSocketAddress(port));
     }

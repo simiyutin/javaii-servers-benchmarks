@@ -1,12 +1,10 @@
-package com.simiyutin.javaii.server.nonblocking;
+package com.simiyutin.javaii.server.tcp_nonblocking;
 
-import com.google.protobuf.CodedOutputStream;
 import com.simiyutin.javaii.proto.MessageProtos;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 

@@ -1,22 +1,19 @@
-package com.simiyutin.javaii.server.threadpool;
+package com.simiyutin.javaii.server.tcp_threadpool;
 
 import com.simiyutin.javaii.server.Server;
-import com.simiyutin.javaii.server.SortAlgorithm;
 import com.simiyutin.javaii.server.handlers.TCPSerialHandler;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ThreadPoolServer extends Server {
+public class TCPThreadPoolServer extends Server {
     private final ServerSocket serverSocket;
     private final ExecutorService threadPool;
 
-    public ThreadPoolServer(int port) throws IOException {
+    public TCPThreadPoolServer(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
         this.threadPool = Executors.newCachedThreadPool();
     }

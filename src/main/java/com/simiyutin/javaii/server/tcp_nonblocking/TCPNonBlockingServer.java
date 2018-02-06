@@ -1,4 +1,4 @@
-package com.simiyutin.javaii.server.nonblocking;
+package com.simiyutin.javaii.server.tcp_nonblocking;
 
 import com.simiyutin.javaii.server.Server;
 
@@ -9,13 +9,13 @@ import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class NonBlockingServer extends Server {
+public class TCPNonBlockingServer extends Server {
 
     private final ServerSocketChannel serverSocket;
     private final Queue<SocketChannel> channelsQueue;
     private final int CHANNELS_QUEUE_CAPACITY = 1024;
 
-    public NonBlockingServer(int port) throws IOException {
+    public TCPNonBlockingServer(int port) throws IOException {
         this.serverSocket = ServerSocketChannel.open();
         this.serverSocket.bind(new InetSocketAddress(port));
         this.channelsQueue = new ArrayBlockingQueue<>(CHANNELS_QUEUE_CAPACITY);
