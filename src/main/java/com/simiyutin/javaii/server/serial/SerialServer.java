@@ -1,5 +1,6 @@
 package com.simiyutin.javaii.server.serial;
 
+import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
 
@@ -8,6 +9,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class SerialServer extends Server {
     private final ServerSocket serverSocket;
@@ -32,22 +36,14 @@ public class SerialServer extends Server {
     // up
     private void handleTCP(Socket socket) throws IOException {
         //read
-        DataInputStream dis = new DataInputStream(socket.getInputStream());
-        int n = dis.readInt();
-        int[] array = new int[n];
-        for (int i = 0; i < n; i++) {
-            array[i] = dis.readInt();
-        }
+        MessageProtos.Message request = MessageProtos.Message.parseDelimitedFrom(socket.getInputStream());
+        List<Integer> array = new ArrayList<>(request.getArrayList());
 
         //process
         SortAlgorithm.sort(array);
 
-        //write
-        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-        dos.writeInt(n);
+        MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
 
-        for (int val : array) {
-            dos.writeInt(val);
-        }
+        response.writeDelimitedTo(socket.getOutputStream());
     }
 }

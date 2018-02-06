@@ -1,10 +1,14 @@
 package com.simiyutin.javaii.client;
 
+import com.simiyutin.javaii.proto.MessageProtos;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TCPStatelessClient implements Client {
@@ -30,26 +34,22 @@ public class TCPStatelessClient implements Client {
 
     private void communicate(Socket socket) throws IOException {
         // request
-        int[] array = IntStream.range(0, N).
+        List<Integer> array = IntStream.range(0, N).
                 map(i -> ~i).sorted().map(i -> ~i) // reverse order
-                .toArray();
+                .boxed().collect(Collectors.toList());
 
-        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-        dos.writeInt(array.length);
-        for (int anArray : array) {
-            dos.writeInt(anArray);
-        }
+        MessageProtos.Message message = MessageProtos.Message.newBuilder()
+                .addAllArray(array)
+                .build();
+        message.writeDelimitedTo(socket.getOutputStream());
 
         // response
-        DataInputStream dis = new DataInputStream(socket.getInputStream());
-        int n = dis.readInt();
-        int predVal = dis.readInt();
-        for (int i = 1; i < n; i++) {
-            int curVal = dis.readInt();
-            if (curVal < predVal) {
+        MessageProtos.Message result = MessageProtos.Message.parseDelimitedFrom(socket.getInputStream());
+        List<Integer> resultArray = result.getArrayList();
+        for (int i = 1; i < resultArray.size(); ++i) {
+            if (resultArray.get(i - 1) > resultArray.get(i)) {
                 throw new AssertionError("azaza lalka");
             }
-            predVal = curVal;
         }
     }
 }
