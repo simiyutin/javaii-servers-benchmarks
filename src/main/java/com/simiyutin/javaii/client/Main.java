@@ -30,7 +30,7 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new NonBlockingServer(port);
+                return new AsyncServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }

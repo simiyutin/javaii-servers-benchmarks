@@ -1,5 +1,7 @@
 package com.simiyutin.javaii.server.async;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
 
@@ -58,8 +60,13 @@ public class AsyncServer extends Server {
             if (!reader.finished()) {
                 socket.read(buffer, attachment, this);
             } else {
-                SortAlgorithm.sort(reader.constructedMessage);
-                reader.dump(buffer);
+                MessageProtos.Message message = reader.parseMessage();
+                List<Integer> array = new ArrayList<>(message.getArrayList());
+                SortAlgorithm.sort(array);
+                MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
+                byte[] bytes = response.toByteArray();
+                buffer.putInt(bytes.length);
+                buffer.put(bytes);
                 buffer.flip();
                 attachment.reader = new Reader();
                 socket.write(buffer, attachment, new WriterHandler());
@@ -94,36 +101,43 @@ public class AsyncServer extends Server {
 
     // должен считать ровно один массив
     private static class Reader {
-        List<Integer> constructedMessage = new ArrayList<>();
-        int curSize = -1;
+        private byte[] data = null;
+        private int offset = 0;
 
         boolean finished() {
-            return constructedMessage.size() == curSize;
+            return data != null && data.length == offset;
+        }
+
+        MessageProtos.Message parseMessage() {
+            MessageProtos.Message result = MessageProtos.Message.getDefaultInstance();
+            try {
+                result = MessageProtos.Message.parseFrom(data);
+            } catch (InvalidProtocolBufferException e) {
+                e.printStackTrace();
+            }
+            return result;
         }
 
         void feed(ByteBuffer buffer) {
             buffer.flip();
+            while (buffer.remaining() > 0) {
+                if (data == null && buffer.remaining() < 4) {
+                    break;
+                }
 
-            while (buffer.remaining() >= 4) {
-                int readValue = buffer.getInt();
-                if (curSize == -1) {
-                    curSize = readValue;
-                } else if (constructedMessage.size() == curSize) {
+                if (data == null) {
+                    int byteSize = buffer.getInt();
+                    data = new byte[byteSize];
+                } else if (offset == data.length) {
                     throw new AssertionError("lolwut");
                 } else {
-                    constructedMessage.add(readValue);
+                    int remaining = buffer.remaining();
+                    buffer.get(data, offset, remaining);
+                    offset += remaining;
                 }
             }
 
             buffer.compact();
-        }
-
-        void dump(ByteBuffer buffer) {
-            buffer.clear();
-            buffer.putInt(curSize);
-            for (Integer val : constructedMessage) {
-                buffer.putInt(val);
-            }
         }
     }
 }
