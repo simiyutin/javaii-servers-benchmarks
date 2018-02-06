@@ -28,7 +28,7 @@ public class AsyncServer extends Server {
             try {
                 Future<AsynchronousSocketChannel> socketFuture = serverSocket.accept();
                 AsynchronousSocketChannel socket = socketFuture.get();
-                ByteBuffer buffer = ByteBuffer.allocate(1024);
+                ByteBuffer buffer = ByteBuffer.allocate(1024); //todo what if larger array?
                 Reader reader = new Reader();
                 Attachment attachment = new Attachment();
                 attachment.buffer = buffer;
@@ -58,7 +58,6 @@ public class AsyncServer extends Server {
             if (!reader.finished()) {
                 socket.read(buffer, attachment, this);
             } else {
-                System.out.println(reader.constructedMessage);
                 SortAlgorithm.sort(reader.constructedMessage);
                 reader.dump(buffer);
                 buffer.flip();
