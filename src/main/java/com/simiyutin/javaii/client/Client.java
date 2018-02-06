@@ -18,5 +18,5 @@ public abstract class Client {
         this.port = port;
     }
 
-    abstract void start() throws IOException;
+    public abstract void start() throws IOException;
 }

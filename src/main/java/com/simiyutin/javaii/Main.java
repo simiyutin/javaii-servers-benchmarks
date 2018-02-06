@@ -1,5 +1,7 @@
-package com.simiyutin.javaii.client;
+package com.simiyutin.javaii;
 
+import com.simiyutin.javaii.client.Client;
+import com.simiyutin.javaii.client.UDPClient;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.tcp_async.TCPAsyncServer;
 import com.simiyutin.javaii.server.tcp_nonblocking.TCPNonBlockingServer;
@@ -20,7 +22,7 @@ import java.util.function.Supplier;
 public class Main {
 
     // количесвто одновременно работающих лиентов
-    private static final int M = 1;
+    private static final int M = 10;
 
     public static void main(String[] args) throws IOException {
 
