@@ -1,5 +1,7 @@
 package com.simiyutin.javaii.server.udp_threadperrequest;
 
+import com.simiyutin.javaii.proto.MessageProtos;
+import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
 
@@ -7,7 +9,9 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class UDPThreadPerRequestServer extends Server {
     private final DatagramSocket serverSocket;
@@ -24,24 +28,16 @@ public class UDPThreadPerRequestServer extends Server {
             serverSocket.receive(receivePacket);
             new Thread(() -> {
                 try {
-                    DataInputStream dis = new DataInputStream(new ByteArrayInputStream(receivePacket.getData()));
-                    int n = dis.readInt();
-                    int[] array = new int[n];
-                    for (int i = 0; i < n; i++) {
-                        array[i] = dis.readInt();
-                    }
+                    MessageProtos.Message message = SerializationWrapper.deserialize(new ByteArrayInputStream(receivePacket.getData()));
+                    List<Integer> array = new ArrayList<>(message.getArrayList());
                     SortAlgorithm.sort(array);
 
+                    MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
                     ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-                    DataOutputStream dos = new DataOutputStream(baos);
-                    dos.writeInt(n);
-                    for (int val : array) {
-                        dos.writeInt(val);
-                    }
+                    SerializationWrapper.serialize(response, baos);
 
-                    byte[] response = baos.toByteArray();
-
-                    DatagramPacket responsePacket = new DatagramPacket(response, response.length, receivePacket.getAddress(), receivePacket.getPort()); // todo ???
+                    byte[] bytes = baos.toByteArray();
+                    DatagramPacket responsePacket = new DatagramPacket(bytes, bytes.length, receivePacket.getAddress(), receivePacket.getPort()); // todo ???
                     serverSocket.send(responsePacket);
 
                 } catch (IOException ex) {

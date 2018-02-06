@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 public class Main {
 
     // количесвто одновременно работающих лиентов
-    private static final int M = 1;
+    private static final int M = 10;
 
     public static void main(String[] args) throws IOException {
 
@@ -30,14 +30,14 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new AsyncServer(port);
+                return new UDPThreadPerRequestServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
         };
 
-        Supplier<Client> clientSupplier = () -> new TCPStatefulClient(host, port);
+        Supplier<Client> clientSupplier = () -> new UDPClient(host, port);
 
         runTest(serverSupplier, clientSupplier);
     }

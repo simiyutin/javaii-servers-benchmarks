@@ -1,8 +1,13 @@
 package com.simiyutin.javaii.client;
 
+import com.simiyutin.javaii.proto.MessageProtos;
+import com.simiyutin.javaii.proto.SerializationWrapper;
+
 import java.io.*;
 import java.net.*;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class UDPClient implements Client {
@@ -35,16 +40,14 @@ public class UDPClient implements Client {
 
     private void communicate(DatagramSocket socket, InetAddress address, int port) throws IOException {
         // request
-        int[] array = IntStream.range(0, N).
+        List<Integer> array = IntStream.range(0, N).
                 map(i -> ~i).sorted().map(i -> ~i) // reverse order
-                .toArray();
+                .boxed().collect(Collectors.toList());
+
+        MessageProtos.Message message = MessageProtos.Message.newBuilder().addAllArray(array).build();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-        DataOutputStream dos = new DataOutputStream(baos);
-        dos.writeInt(array.length);
-        for (int val : array) {
-            dos.writeInt(val);
-        }
+        SerializationWrapper.serialize(message, baos);
         byte[] sendData = baos.toByteArray();
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
         socket.send(sendPacket);
@@ -52,15 +55,13 @@ public class UDPClient implements Client {
         byte[] receiveData = new byte[1024];
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         socket.receive(receivePacket);
-        DataInputStream dis = new DataInputStream(new ByteArrayInputStream(receiveData));
-        int n = dis.readInt();
-        int predVal = dis.readInt();
-        for (int i = 1; i < n; i++) {
-            int curVal = dis.readInt();
-            if (curVal < predVal) {
+        ByteArrayInputStream bais = new ByteArrayInputStream(receiveData);
+        MessageProtos.Message response = SerializationWrapper.deserialize(bais);
+        List<Integer> result = response.getArrayList();
+        for (int i = 1; i < result.size(); ++i) {
+            if (result.get(i - 1) > result.get(i)) {
                 throw new AssertionError("azaza lalka");
             }
-            predVal = curVal;
         }
     }
 }
