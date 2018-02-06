@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPThreadPerClientServer extends Server {
+public class TCPThreadPerClientServer implements Server {
     private final ServerSocket serverSocket;
 
     public TCPThreadPerClientServer(int port) throws IOException {

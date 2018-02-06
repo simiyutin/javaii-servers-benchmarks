@@ -2,6 +2,6 @@ package com.simiyutin.javaii.server;
 
 import java.io.IOException;
 
-public abstract class Server {
-    public abstract void start() throws IOException;
+public interface Server {
+    void start() throws IOException;
 }

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class TCPAsyncServer extends Server {
+public class TCPAsyncServer implements Server {
     private final AsynchronousServerSocketChannel serverSocket;
 
     public TCPAsyncServer(int port) throws IOException {
@@ -25,7 +25,7 @@ public class TCPAsyncServer extends Server {
     }
 
     @Override
-    public void start() throws IOException {
+    public void start() {
         while (true) {
             try {
                 Future<AsynchronousSocketChannel> socketFuture = serverSocket.accept();
@@ -75,11 +75,11 @@ public class TCPAsyncServer extends Server {
 
         @Override
         public void failed(Throwable exc, Attachment attachment) {
-
+            exc.printStackTrace();
         }
     }
 
-    public static class WriterHandler implements CompletionHandler<Integer, Attachment> {
+    private static class WriterHandler implements CompletionHandler<Integer, Attachment> {
         @Override
         public void completed(Integer result, Attachment attachment) {
             AsynchronousSocketChannel socket = attachment.socket;
@@ -95,7 +95,7 @@ public class TCPAsyncServer extends Server {
 
         @Override
         public void failed(Throwable exc, Attachment attachment) {
-
+            exc.printStackTrace();
         }
     }
 

@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class TCPNonBlockingServer extends Server {
+public class TCPNonBlockingServer implements Server {
 
     private final ServerSocketChannel serverSocket;
     private final Queue<SocketChannel> channelsQueue;

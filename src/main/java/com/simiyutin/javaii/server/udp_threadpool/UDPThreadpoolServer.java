@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class UDPThreadpoolServer extends Server {
+public class UDPThreadpoolServer implements Server {
     private final DatagramSocket serverSocket;
     private final Queue<Response> writeQueue;
     private final ExecutorService threadPool;
@@ -27,12 +27,6 @@ public class UDPThreadpoolServer extends Server {
         this.serverSocket = new DatagramSocket(port);
         this.writeQueue = new ArrayBlockingQueue<>(1024);
         this.threadPool = Executors.newCachedThreadPool();
-    }
-
-    private static class Response {
-        List<Integer> array;
-        InetAddress address;
-        int port;
     }
 
     @Override
@@ -82,5 +76,11 @@ public class UDPThreadpoolServer extends Server {
                 writeQueue.add(response);
             });
         }
+    }
+
+    private static class Response {
+        List<Integer> array;
+        InetAddress address;
+        int port;
     }
 }

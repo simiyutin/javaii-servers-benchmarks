@@ -135,4 +135,14 @@ public class SocketChannelsProcessor implements Runnable {
         writer.write(channel, unsubscribeHook);
     }
 
+    private static class Result {
+        MessageProtos.Message message;
+        SocketChannel channel;
+
+        public Result(MessageProtos.Message message, SocketChannel channel) {
+            this.message = message;
+            this.channel = channel;
+        }
+    }
+
 }

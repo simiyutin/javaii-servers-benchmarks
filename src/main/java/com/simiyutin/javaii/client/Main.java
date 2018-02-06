@@ -26,7 +26,7 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new TCPAsyncServer(port);
+                return new TCPNonBlockingServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }

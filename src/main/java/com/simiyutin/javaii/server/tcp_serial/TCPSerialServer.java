@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPSerialServer extends Server {
+public class TCPSerialServer implements Server {
     private final ServerSocket serverSocket;
 
     public TCPSerialServer(int port) throws IOException {

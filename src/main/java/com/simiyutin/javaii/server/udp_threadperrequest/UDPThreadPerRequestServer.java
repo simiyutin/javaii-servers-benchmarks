@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class UDPThreadPerRequestServer extends Server {
+public class UDPThreadPerRequestServer implements Server {
     private final DatagramSocket serverSocket;
 
     public UDPThreadPerRequestServer(int port) throws SocketException {
