@@ -30,7 +30,7 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new UDPThreadPerRequestServer(port);
+                return new UDPThreadpoolServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
