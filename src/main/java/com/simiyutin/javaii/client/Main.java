@@ -4,6 +4,7 @@ import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.async.AsyncServer;
 import com.simiyutin.javaii.server.nonblocking.NonBlockingServer;
 import com.simiyutin.javaii.server.threadpool.ThreadPoolServer;
+import com.simiyutin.javaii.server.udp_threadperrequest.UDPThreadPerRequestServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,14 +25,14 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new AsyncServer(port);
+                return new UDPThreadPerRequestServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
         };
 
-        Supplier<Client> clientSupplier = () -> new TCPStatefulClient(host, port);
+        Supplier<Client> clientSupplier = () -> new UDPClient(host, port);
 
         runTest(serverSupplier, clientSupplier);
     }
