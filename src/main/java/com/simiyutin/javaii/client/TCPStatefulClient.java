@@ -9,14 +9,10 @@ import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-public class TCPStatefulClient implements Client {
-
-    private String host;
-    private int port;
+public class TCPStatefulClient extends Client {
 
     public TCPStatefulClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+        super(host, port);
     }
 
     public void start() throws IOException {

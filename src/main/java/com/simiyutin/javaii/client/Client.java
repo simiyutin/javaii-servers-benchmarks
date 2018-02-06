@@ -2,13 +2,21 @@ package com.simiyutin.javaii.client;
 
 import java.io.IOException;
 
-public interface Client {
+public abstract class Client {
     // количество элементов в сортируемых массивах
-    int N = 10;
+    public static final int N = 10;
     // время, которое клиент ждет между запросами
-    int DELTA_MILLIS = 200;
+    public static final int DELTA_MILLIS = 200;
     // количество запросов
-    int X = 10;
+    public static final int X = 10;
 
-    void start() throws IOException;
+    protected String host;
+    protected int port;
+
+    public Client(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    abstract void start() throws IOException;
 }

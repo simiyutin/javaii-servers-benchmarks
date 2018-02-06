@@ -30,14 +30,14 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new UDPThreadpoolServer(port);
+                return new NonBlockingServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
         };
 
-        Supplier<Client> clientSupplier = () -> new UDPClient(host, port);
+        Supplier<Client> clientSupplier = () -> new TCPStatefulClient(host, port);
 
         runTest(serverSupplier, clientSupplier);
     }

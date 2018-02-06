@@ -12,13 +12,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class TCPStatelessClient implements Client {
-    private String host;
-    private int port;
+public class TCPStatelessClient extends Client {
 
     public TCPStatelessClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+        super(host, port);
     }
 
     public void start() throws IOException {
