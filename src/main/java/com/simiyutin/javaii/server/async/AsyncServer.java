@@ -2,7 +2,6 @@ package com.simiyutin.javaii.server.async;
 
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
-import com.sun.corba.se.pept.transport.ResponseWaitingRoom;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -59,7 +58,6 @@ public class AsyncServer extends Server {
             if (!reader.finished()) {
                 socket.read(buffer, attachment, this);
             } else {
-                System.out.println("fully read!");
                 System.out.println(reader.constructedMessage);
                 SortAlgorithm.sort(reader.constructedMessage);
                 reader.dump(buffer);
@@ -95,6 +93,7 @@ public class AsyncServer extends Server {
         }
     }
 
+    // должен считать ровно один массив
     private static class Reader {
         List<Integer> constructedMessage = new ArrayList<>();
         int curSize = -1;
