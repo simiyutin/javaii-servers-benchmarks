@@ -2,6 +2,7 @@ package com.simiyutin.javaii.client.communicators;
 
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
+import com.simiyutin.javaii.server.SortAlgorithm;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -34,10 +36,6 @@ public class UDPSerialCommunicator {
         ByteArrayInputStream bais = new ByteArrayInputStream(receiveData);
         MessageProtos.Message response = SerializationWrapper.deserialize(bais);
         List<Integer> result = response.getArrayList();
-        for (int i = 1; i < result.size(); ++i) {
-            if (result.get(i - 1) > result.get(i)) {
-                throw new AssertionError("azaza lalka");
-            }
-        }
+        SortAlgorithm.checkSorted(array, result);
     }
 }

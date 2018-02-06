@@ -2,6 +2,7 @@ package com.simiyutin.javaii.client.communicators;
 
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
+import com.simiyutin.javaii.server.SortAlgorithm;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -25,10 +26,6 @@ public class TCPSerialCommunicator {
         // response
         MessageProtos.Message result = SerializationWrapper.deserialize(socket.getInputStream());
         List<Integer> resultArray = result.getArrayList();
-        for (int i = 1; i < resultArray.size(); ++i) {
-            if (resultArray.get(i - 1) > resultArray.get(i)) {
-                throw new AssertionError("azaza lalka");
-            }
-        }
+        SortAlgorithm.checkSorted(array, resultArray);
     }
 }
