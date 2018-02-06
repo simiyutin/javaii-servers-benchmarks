@@ -3,6 +3,7 @@ package com.simiyutin.javaii.server.serial;
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.server.handlers.TCPSerialHandler;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -25,25 +26,11 @@ public class SerialServer extends Server {
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
-                handleTCP(socket);
+                TCPSerialHandler.handle(socket);
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    // up
-    private void handleTCP(Socket socket) throws IOException {
-        //read
-        MessageProtos.Message request = MessageProtos.Message.parseDelimitedFrom(socket.getInputStream());
-        List<Integer> array = new ArrayList<>(request.getArrayList());
-
-        //process
-        SortAlgorithm.sort(array);
-
-        MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
-
-        response.writeDelimitedTo(socket.getOutputStream());
     }
 }
