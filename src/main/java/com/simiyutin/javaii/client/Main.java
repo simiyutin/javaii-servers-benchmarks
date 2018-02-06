@@ -5,6 +5,7 @@ import com.simiyutin.javaii.server.async.AsyncServer;
 import com.simiyutin.javaii.server.nonblocking.NonBlockingServer;
 import com.simiyutin.javaii.server.threadpool.ThreadPoolServer;
 import com.simiyutin.javaii.server.udp_threadperrequest.UDPThreadPerRequestServer;
+import com.simiyutin.javaii.server.udp_threadpool.UDPThreadpoolServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new UDPThreadPerRequestServer(port);
+                return new UDPThreadpoolServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -9,10 +9,13 @@ public class UDPClient implements Client {
 
     private String host;
     private int port;
+    private static int gid = 0;
+    private int id;
 
     public UDPClient(String host, int port) {
         this.host = host;
         this.port = port;
+        this.id = gid++;
     }
 
     @Override
@@ -20,12 +23,13 @@ public class UDPClient implements Client {
         DatagramSocket socket = new DatagramSocket();
         InetAddress address = InetAddress.getByName(host);
         for (int i = 0; i < X; i++) {
+            System.out.println(String.format("client #%d, iter %d: start", id, i));
             communicate(socket, address, port);
             if (i != X - 1) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(DELTA_MILLIS);} catch (InterruptedException ignored) {}
             }
-            System.out.println(String.format("iter %d: OK", i));
+            System.out.println(String.format("client #%d, iter %d: OK", id, i));
         }
     }
 
