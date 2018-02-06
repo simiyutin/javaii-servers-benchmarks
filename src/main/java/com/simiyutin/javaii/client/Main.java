@@ -1,6 +1,7 @@
 package com.simiyutin.javaii.client;
 
 import com.simiyutin.javaii.server.Server;
+import com.simiyutin.javaii.server.async.AsyncServer;
 import com.simiyutin.javaii.server.nonblocking.NonBlockingServer;
 import com.simiyutin.javaii.server.threadpool.ThreadPoolServer;
 
@@ -23,7 +24,7 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new ThreadPoolServer(port);
+                return new AsyncServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
