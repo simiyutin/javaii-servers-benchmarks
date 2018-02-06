@@ -2,8 +2,10 @@ package com.simiyutin.javaii.server.tcp_nonblocking;
 
 import com.simiyutin.javaii.server.Server;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Queue;
@@ -14,6 +16,8 @@ public class TCPNonBlockingServer implements Server {
     private final ServerSocketChannel serverSocket;
     private final Queue<SocketChannel> channelsQueue;
     private final int CHANNELS_QUEUE_CAPACITY = 1024;
+    private Thread channelsProcessor;
+    private Thread listener;
 
     public TCPNonBlockingServer(int port) throws IOException {
         this.serverSocket = ServerSocketChannel.open();
@@ -24,17 +28,39 @@ public class TCPNonBlockingServer implements Server {
     @Override
     public void start() throws IOException {
 
-        SocketChannelsProcessor channelsProcessor = new SocketChannelsProcessor(channelsQueue);
+        channelsProcessor = new Thread(new SocketChannelsProcessor(channelsQueue));
+        channelsProcessor.start();
 
-        new Thread(channelsProcessor).start();
-
-        while (true) {
-            try {
-                SocketChannel socket = serverSocket.accept();
-                channelsQueue.add(socket);
-            } catch (IOException e) {
-                e.printStackTrace();
+        listener = new Thread(() -> {
+            while (!Thread.interrupted() && serverSocket.isOpen()) {
+                try {
+                    SocketChannel socket = serverSocket.accept();
+                    channelsQueue.add(socket);
+                }
+                catch (ClosedByInterruptException ex) {
+                    System.out.println("listener closed!");
+                    return;
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+        });
+        listener.start();
+    }
+
+    @Override
+    public void stop() {
+        if (channelsProcessor != null) {
+            channelsProcessor.interrupt();
         }
+
+        if (listener != null) {
+            listener.interrupt();
+        }
+
+        try {
+            serverSocket.close();
+        } catch (IOException ignored) {}
     }
 }

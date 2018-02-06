@@ -3,8 +3,11 @@ package com.simiyutin.javaii.client;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.tcp_async.TCPAsyncServer;
 import com.simiyutin.javaii.server.tcp_nonblocking.TCPNonBlockingServer;
+import com.simiyutin.javaii.server.tcp_serial.TCPSerialServer;
 import com.simiyutin.javaii.server.tcp_threadperclient.TCPThreadPerClientServer;
 import com.simiyutin.javaii.server.tcp_threadpool.TCPThreadPoolServer;
+import com.simiyutin.javaii.server.udp_threadperrequest.UDPThreadPerRequestServer;
+import com.simiyutin.javaii.server.udp_threadpool.UDPThreadpoolServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,7 +20,7 @@ import java.util.function.Supplier;
 public class Main {
 
     // количесвто одновременно работающих лиентов
-    private static final int M = 10;
+    private static final int M = 1;
 
     public static void main(String[] args) throws IOException {
 
@@ -26,36 +29,28 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new TCPNonBlockingServer(port);
+                return new UDPThreadpoolServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
         };
 
-        Supplier<Client> clientSupplier = () -> new TCPStatefulClient(host, port);
+        Supplier<Client> clientSupplier = () -> new UDPClient(host, port);
 
         runTest(serverSupplier, clientSupplier);
     }
 
     private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier) {
-        new Thread(() -> {
-            Server server = serverSupplier.get();
-            if (server != null) {
-                try {
-                    server.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                throw new AssertionError("failed to init server");
+        Server server = serverSupplier.get();
+        if (server != null) {
+            try {
+                server.start();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }).start();
-
-        try {
-            TimeUnit.MILLISECONDS.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } else {
+            throw new AssertionError("failed to init server");
         }
 
 
@@ -88,6 +83,6 @@ public class Main {
         }
 
         System.out.println("all right!");
-        System.exit(0); // todo make threads deamons
+        server.stop();
     }
 }

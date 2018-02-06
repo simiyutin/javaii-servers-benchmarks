@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.CompletionHandler;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.concurrent.Future;
 
 public class TCPAsyncServer implements Server {
     private final AsynchronousServerSocketChannel serverSocket;
+    private Thread listener;
 
     public TCPAsyncServer(int port) throws IOException {
         this.serverSocket = AsynchronousServerSocketChannel.open();
@@ -26,21 +28,42 @@ public class TCPAsyncServer implements Server {
 
     @Override
     public void start() {
-        while (true) {
-            try {
-                Future<AsynchronousSocketChannel> socketFuture = serverSocket.accept();
-                AsynchronousSocketChannel socket = socketFuture.get();
-                ByteBuffer buffer = ByteBuffer.allocate(1024); //todo what if larger array?
-                Reader reader = new Reader();
-                Attachment attachment = new Attachment();
-                attachment.buffer = buffer;
-                attachment.socket = socket;
-                attachment.reader = reader;
-                socket.read(buffer, attachment, new ReaderHandler());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+
+        listener = new Thread(() -> {
+            while (!Thread.interrupted()) {
+                try {
+                    Future<AsynchronousSocketChannel> socketFuture = serverSocket.accept();
+                    AsynchronousSocketChannel socket = socketFuture.get();
+                    ByteBuffer buffer = ByteBuffer.allocate(1024); //todo what if larger array?
+                    Reader reader = new Reader();
+                    Attachment attachment = new Attachment();
+                    attachment.buffer = buffer;
+                    attachment.socket = socket;
+                    attachment.reader = reader;
+                    socket.read(buffer, attachment, new ReaderHandler());
+                }
+                catch (InterruptedException e) {
+                    return;
+                }
+                catch (ExecutionException e) {
+                    if (e.getCause() != null && e.getCause() instanceof ClosedChannelException) {
+                        return;
+                    }
+                    e.printStackTrace();
+                }
             }
+        });
+        listener.start();
+    }
+
+    @Override
+    public void stop() {
+        if (listener != null) {
+            listener.interrupt();
         }
+        try {
+            serverSocket.close();
+        } catch (IOException ignored) {}
     }
 
     private static class Attachment {

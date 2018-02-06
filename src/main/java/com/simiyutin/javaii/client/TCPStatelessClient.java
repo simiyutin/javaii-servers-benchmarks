@@ -26,6 +26,7 @@ public class TCPStatelessClient extends Client {
                 try {TimeUnit.MILLISECONDS.sleep(DELTA_MILLIS);} catch (InterruptedException ignored) {}
             }
             System.out.println(String.format("iter %d: OK", i));
+            socket.close();
         }
 
     }

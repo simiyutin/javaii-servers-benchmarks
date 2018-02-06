@@ -20,6 +20,7 @@ public class SocketChannelsProcessor implements Runnable {
     private final Selector readSelector;
     private final Selector writeSelector;
     private final ExecutorService threadPool;
+    private boolean stopped = false;
 
 
     public SocketChannelsProcessor(Queue<SocketChannel> channelsQueue) throws IOException {
@@ -32,7 +33,7 @@ public class SocketChannelsProcessor implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
+        while (!readyToStop()) {
             try{
                 executeNonBlockingCycle();
             } catch(IOException e){
@@ -42,15 +43,22 @@ public class SocketChannelsProcessor implements Runnable {
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println("processor closed!");
+                stopped = true;
             }
         }
+        threadPool.shutdown();
+    }
+
+    private boolean readyToStop() {
+        return stopped && readSelector.selectedKeys().isEmpty() && resultQueue.isEmpty();
     }
 
     private void executeNonBlockingCycle() throws IOException {
-        registerNewChannels();
+        if (!stopped) {
+            registerNewChannels();
+        }
         readFromChannels();
-
         registerReadyTasks();
         writeToChannels();
     }
