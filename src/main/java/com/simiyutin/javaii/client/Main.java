@@ -1,5 +1,6 @@
 package com.simiyutin.javaii.client;
 
+import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.async.AsyncServer;
 import com.simiyutin.javaii.server.nonblocking.NonBlockingServer;
@@ -21,6 +22,7 @@ public class Main {
     private static final int M = 10;
 
     public static void main(String[] args) throws IOException {
+
         String host = "localhost";
         int port = 11111;
 

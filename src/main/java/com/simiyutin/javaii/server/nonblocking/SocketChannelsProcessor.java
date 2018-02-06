@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SocketChannelsProcessor implements Runnable {
     private final Queue<SocketChannel> channelsQueue;
-    private final Queue<Message> messageQueue;
+    private final Queue<Result> resultQueue;
     private final Selector readSelector;
     private final Selector writeSelector;
     private final ExecutorService threadPool;
@@ -23,7 +23,7 @@ public class SocketChannelsProcessor implements Runnable {
 
     public SocketChannelsProcessor(Queue<SocketChannel> channelsQueue) throws IOException {
         this.channelsQueue = channelsQueue;
-        this.messageQueue = new ArrayBlockingQueue<>(1024);
+        this.resultQueue = new ArrayBlockingQueue<>(1024);
         this.readSelector = Selector.open();
         this.writeSelector = Selector.open();
         this.threadPool = Executors.newCachedThreadPool();
@@ -91,17 +91,17 @@ public class SocketChannelsProcessor implements Runnable {
             // не нужно упорядочивать ответы, потому что клиент шлет запрос и ждет
             threadPool.submit(() -> {
                 SortAlgorithm.sort(message);
-                messageQueue.add(new Message(message, channel));
+                resultQueue.add(new Result(message, channel));
             });
         }
     }
 
     private void registerReadyTasks() throws ClosedChannelException {
-        Message message = messageQueue.poll();
+        Result result = resultQueue.poll();
 
-        while (message != null) {
-            List<Integer> data = message.data;
-            SocketChannel channel = message.channel;
+        while (result != null) {
+            List<Integer> data = result.data;
+            SocketChannel channel = result.channel;
             SelectionKey key = channel.register(writeSelector, SelectionKey.OP_WRITE);
             if (key.attachment() == null) {
                 key.attach(new SocketChannelWriter());
@@ -109,7 +109,7 @@ public class SocketChannelsProcessor implements Runnable {
             SocketChannelWriter writer = (SocketChannelWriter) key.attachment();
             writer.addData(data);
 
-            message = messageQueue.poll();
+            result = resultQueue.poll();
         }
     }
 
