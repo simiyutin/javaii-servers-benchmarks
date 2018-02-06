@@ -1,5 +1,8 @@
 package com.simiyutin.javaii.server.nonblocking;
 
+import com.google.protobuf.CodedOutputStream;
+import com.simiyutin.javaii.proto.MessageProtos;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -8,11 +11,11 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class SocketChannelWriter {
-    private Queue<List<Integer>> messageQueue = new ArrayBlockingQueue<>(1024);
+    private Queue<byte[]> messageQueue = new ArrayBlockingQueue<>(1024);
     private ByteBuffer curBuffer = ByteBuffer.allocate(128);
 
-    public void addData(List<Integer> data) {
-        messageQueue.add(data);
+    public void addMessage(MessageProtos.Message message) {
+        messageQueue.add(message.toByteArray());
         curBuffer.flip();
     }
 
@@ -22,19 +25,17 @@ public class SocketChannelWriter {
         do {
             // contract - curBuffer is always in read-mode outside this if block
             if (!curBuffer.hasRemaining()) {
-                List<Integer> data = messageQueue.poll();
-                if (curBuffer.capacity() < (data.size() + 1) * 4) {
-                    curBuffer = ByteBuffer.allocate((data.size() + 1) * 4);
+                byte[] message = messageQueue.poll();
+                if (curBuffer.capacity() < message.length + 4) {
+                    curBuffer = ByteBuffer.allocate(message.length + 4);
                 }
                 curBuffer.clear(); // now in write-mode
-                curBuffer.putInt(data.size());
-                for (Integer value : data) {
-                    curBuffer.putInt(value);
-                }
+                curBuffer.putInt(message.length);
+
+                curBuffer.put(message);
                 curBuffer.flip();
             }
             bytesWritten = channel.write(curBuffer);
-
         } while (bytesWritten > 0 && !messageQueue.isEmpty());
 
         if (messageQueue.isEmpty()) {

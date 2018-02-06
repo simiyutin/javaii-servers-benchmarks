@@ -1,6 +1,7 @@
 package com.simiyutin.javaii.client.communicators;
 
 import com.simiyutin.javaii.proto.MessageProtos;
+import com.simiyutin.javaii.proto.SerializationWrapper;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -18,10 +19,11 @@ public class TCPSerialCommunicator {
         MessageProtos.Message message = MessageProtos.Message.newBuilder()
                 .addAllArray(array)
                 .build();
-        message.writeDelimitedTo(socket.getOutputStream());
+
+        SerializationWrapper.serialize(message, socket.getOutputStream());
 
         // response
-        MessageProtos.Message result = MessageProtos.Message.parseDelimitedFrom(socket.getInputStream());
+        MessageProtos.Message result = SerializationWrapper.deserialize(socket.getInputStream());
         List<Integer> resultArray = result.getArrayList();
         for (int i = 1; i < resultArray.size(); ++i) {
             if (resultArray.get(i - 1) > resultArray.get(i)) {

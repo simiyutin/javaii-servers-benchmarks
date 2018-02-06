@@ -6,12 +6,11 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SocketChannelReader {
+public class SocketChannelReaderPlain {
     private List<List<Integer>> fullMessages = new ArrayList<>();
     private ByteBuffer buffer = ByteBuffer.allocate(1024);
     private List<Integer> constructedMessage = new ArrayList<>();
     private int curSize = -1;
-
 
     void read(SocketChannel channel) throws IOException {
         while (channel.read(buffer) > 0) {

@@ -1,5 +1,6 @@
 package com.simiyutin.javaii.server.nonblocking;
 
+import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.SortAlgorithm;
 
 import java.io.IOException;
@@ -59,7 +60,7 @@ public class SocketChannelsProcessor implements Runnable {
         while (channel != null) {
             channel.configureBlocking(false);
             SelectionKey key = channel.register(readSelector, SelectionKey.OP_READ);
-            key.attach(new SocketChannelReader());
+            key.attach(new SocketChannelReaderProtobuf());
             channel = channelsQueue.poll();
         }
     }
@@ -79,19 +80,20 @@ public class SocketChannelsProcessor implements Runnable {
 
     private void readFromSocket(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-        SocketChannelReader reader = (SocketChannelReader) key.attachment();
+        SocketChannelReaderProtobuf reader = (SocketChannelReaderProtobuf) key.attachment();
         reader.read(channel);
-        List<List<Integer>> fullMessages = reader.getFullMessages();
+        List<MessageProtos.Message> fullMessages = reader.getFullMessages();
 
         if (fullMessages.size() > 0) {
-            System.out.println("got messages!");
-            System.out.println(fullMessages);
+            System.out.println("got full messages!");
         }
-        for (List<Integer> message : fullMessages) {
+        for (MessageProtos.Message message : fullMessages) {
             // не нужно упорядочивать ответы, потому что клиент шлет запрос и ждет
             threadPool.submit(() -> {
-                SortAlgorithm.sort(message);
-                resultQueue.add(new Result(message, channel));
+                List<Integer> array = new ArrayList<>(message.getArrayList());
+                SortAlgorithm.sort(array);
+                MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
+                resultQueue.add(new Result(response, channel));
             });
         }
     }
@@ -100,14 +102,14 @@ public class SocketChannelsProcessor implements Runnable {
         Result result = resultQueue.poll();
 
         while (result != null) {
-            List<Integer> data = result.data;
+            MessageProtos.Message message = result.message;
             SocketChannel channel = result.channel;
             SelectionKey key = channel.register(writeSelector, SelectionKey.OP_WRITE);
             if (key.attachment() == null) {
                 key.attach(new SocketChannelWriter());
             }
             SocketChannelWriter writer = (SocketChannelWriter) key.attachment();
-            writer.addData(data);
+            writer.addMessage(message);
 
             result = resultQueue.poll();
         }

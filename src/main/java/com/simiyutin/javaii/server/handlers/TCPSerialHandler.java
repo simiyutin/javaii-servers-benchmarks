@@ -1,6 +1,7 @@
 package com.simiyutin.javaii.server.handlers;
 
 import com.simiyutin.javaii.proto.MessageProtos;
+import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.SortAlgorithm;
 
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.util.List;
 public class TCPSerialHandler {
     public static void handle(Socket socket) throws IOException {
         //read
-        MessageProtos.Message request = MessageProtos.Message.parseDelimitedFrom(socket.getInputStream());
+        MessageProtos.Message request = SerializationWrapper.deserialize(socket.getInputStream());
         if (request == null) { // todo google it
             return;
         }
@@ -21,7 +22,6 @@ public class TCPSerialHandler {
         SortAlgorithm.sort(array);
 
         MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
-
-        response.writeDelimitedTo(socket.getOutputStream());
+        SerializationWrapper.serialize(response, socket.getOutputStream());
     }
 }

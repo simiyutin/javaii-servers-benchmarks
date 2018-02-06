@@ -1,14 +1,15 @@
 package com.simiyutin.javaii.server.nonblocking;
 
+import com.simiyutin.javaii.proto.MessageProtos;
+
 import java.nio.channels.SocketChannel;
-import java.util.List;
 
 public class Result {
-    List<Integer> data;
+    MessageProtos.Message message;
     SocketChannel channel;
 
-    public Result(List<Integer> data, SocketChannel channel) {
-        this.data = data;
+    public Result(MessageProtos.Message message, SocketChannel channel) {
+        this.message = message;
         this.channel = channel;
     }
 }

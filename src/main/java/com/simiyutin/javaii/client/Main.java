@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 public class Main {
 
     // количесвто одновременно работающих лиентов
-    private static final int M = 10;
+    private static final int M = 1;
 
     public static void main(String[] args) throws IOException {
 
@@ -30,7 +30,7 @@ public class Main {
 
         Supplier<Server> serverSupplier = () -> {
             try {
-                return new ThreadPerClientServer(port);
+                return new NonBlockingServer(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,5 +92,6 @@ public class Main {
         }
 
         System.out.println("all right!");
+        System.exit(0); // todo make threads deamons
     }
 }
