@@ -21,8 +21,7 @@ public abstract class Client {
         long start = System.currentTimeMillis();
         startImpl();
         long end = System.currentTimeMillis();
-        statistic = new ClientWorkTimeStatistic();
-        statistic.timeMillis = end - start;
+        statistic = new ClientWorkTimeStatistic(end - start);
     }
 
     public ClientWorkTimeStatistic getStatistic() {

@@ -23,15 +23,11 @@ public class TCPSerialServer extends Server {
         listener = new Thread(() -> {
             while (!Thread.interrupted() && !serverSocket.isClosed()) {
                 try {
-                    long start = System.currentTimeMillis();
                     Socket socket = serverSocket.accept();
-                    ServerSortTimeStatistic sortTimeStatistic = TCPSerialHandler.handle(socket);
-                    sortTimeStatistics.add(sortTimeStatistic);
+                    long sortTime = TCPSerialHandler.handle(socket);
                     socket.close();
-                    long end = System.currentTimeMillis();
-                    ServerServeTimeStatistic serveTimeStatistic = new ServerServeTimeStatistic();
-                    serveTimeStatistic.timeMillis = end - start;
-                    serveTimeStatistics.add(serveTimeStatistic);
+                    sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
+                    serveTimeStatistics.add(new ServerServeTimeStatistic(sortTime));
                 }
                 catch (SocketException ignored) {
                     return;

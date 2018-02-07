@@ -2,6 +2,8 @@ package com.simiyutin.javaii.server.tcp_threadperclient;
 
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.handlers.TCPSerialHandler;
+import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
+import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -26,7 +28,9 @@ public class TCPThreadPerClientServer extends Server {
                     new Thread(() -> {
                         while (!socket.isClosed()) {
                             try {
-                                TCPSerialHandler.handle(socket);
+                                long sortTime = TCPSerialHandler.handle(socket);
+                                sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
+                                serveTimeStatistics.add(new ServerServeTimeStatistic(sortTime));
                             }
                             catch (EOFException ex) {
                                 return;

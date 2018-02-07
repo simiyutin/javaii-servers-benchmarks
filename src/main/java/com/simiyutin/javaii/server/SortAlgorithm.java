@@ -3,7 +3,9 @@ package com.simiyutin.javaii.server;
 import java.util.*;
 
 public class SortAlgorithm {
-    public static void sort(List<Integer> array) {
+    public static long sort(List<Integer> array) {
+        long start = System.currentTimeMillis();
+
         for (int i = 0; i < array.size() - 1; i++) {
             boolean sorted = true;
             for (int j = 0; j < array.size() - 1 - i; j++) {
@@ -16,6 +18,9 @@ public class SortAlgorithm {
                 break;
             }
         }
+
+        long end = System.currentTimeMillis();
+        return end - start;
     }
     public static void checkSorted(List<Integer> originalArray, List<Integer> actualSortedArray) {
         List<Integer> expectedSortedArray = new ArrayList<>(originalArray);
