@@ -4,6 +4,8 @@ import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
+import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.*;
 import java.net.DatagramPacket;
@@ -39,6 +41,9 @@ public class UDPThreadpoolServer extends Server {
                 try {
                     Response response = writeQueue.poll();
                     while (response != null) {
+                        long endTime = System.currentTimeMillis();
+                        serveTimeStatistics.add(new ServerServeTimeStatistic(endTime - response.startTime));
+
                         List<Integer> array = response.array;
                         MessageProtos.Message message = MessageProtos.Message.newBuilder().addAllArray(array).build();
                         ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
@@ -73,12 +78,15 @@ public class UDPThreadpoolServer extends Server {
                     MessageProtos.Message message = SerializationWrapper.deserialize(new ByteArrayInputStream(receivePacket.getData()));
                     List<Integer> array = new ArrayList<>(message.getArrayList());
 
+                    long startTime = System.currentTimeMillis();
                     threadPool.submit(() -> {
-                        SortAlgorithm.sort(array);
+                        long sortTime = SortAlgorithm.sort(array);
+                        sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
                         Response response = new Response();
                         response.array = array;
                         response.address = receivePacket.getAddress();
                         response.port = receivePacket.getPort();
+                        response.startTime = startTime;
                         writeQueue.add(response);
                     });
                 }
@@ -111,5 +119,6 @@ public class UDPThreadpoolServer extends Server {
         List<Integer> array;
         InetAddress address;
         int port;
+        long startTime;
     }
 }

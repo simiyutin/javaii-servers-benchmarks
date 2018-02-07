@@ -4,6 +4,8 @@ import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
+import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.*;
 import java.net.DatagramPacket;
@@ -35,7 +37,9 @@ public class UDPThreadPerRequestServer extends Server {
                         try {
                             MessageProtos.Message message = SerializationWrapper.deserialize(new ByteArrayInputStream(receivePacket.getData()));
                             List<Integer> array = new ArrayList<>(message.getArrayList());
-                            SortAlgorithm.sort(array);
+                            long sortTime = SortAlgorithm.sort(array);
+                            sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
+                            serveTimeStatistics.add(new ServerServeTimeStatistic(sortTime));
 
                             MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
                             ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
