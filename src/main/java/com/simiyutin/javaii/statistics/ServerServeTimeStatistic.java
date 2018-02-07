@@ -7,4 +7,11 @@ public class ServerServeTimeStatistic {
     public ServerServeTimeStatistic(long timeMillis) {
         this.timeMillis = timeMillis;
     }
+
+    @Override
+    public String toString() {
+        return "ServerServeTimeStatistic{" +
+                "timeMillis=" + timeMillis +
+                '}';
+    }
 }
