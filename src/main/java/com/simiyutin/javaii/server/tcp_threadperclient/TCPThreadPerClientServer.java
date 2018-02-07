@@ -2,12 +2,15 @@ package com.simiyutin.javaii.server.tcp_threadperclient;
 
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.handlers.TCPSerialHandler;
+import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
+import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.List;
 
 public class TCPThreadPerClientServer implements Server {
     private final ServerSocket serverSocket;
@@ -58,5 +61,15 @@ public class TCPThreadPerClientServer implements Server {
         try {
             serverSocket.close();
         } catch (IOException ignored) {}
+    }
+
+    @Override
+    public List<ServerSortTimeStatistic> getSortTimeStatistics() {
+        return null;
+    }
+
+    @Override
+    public List<ServerServeTimeStatistic> getServeTimeStatistics() {
+        return null;
     }
 }

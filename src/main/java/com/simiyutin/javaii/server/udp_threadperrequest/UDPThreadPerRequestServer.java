@@ -4,6 +4,8 @@ import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
+import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.*;
 import java.net.DatagramPacket;
@@ -67,5 +69,15 @@ public class UDPThreadPerRequestServer implements Server {
             listener.interrupt();
         }
         serverSocket.close();
+    }
+
+    @Override
+    public List<ServerSortTimeStatistic> getSortTimeStatistics() {
+        return null;
+    }
+
+    @Override
+    public List<ServerServeTimeStatistic> getServeTimeStatistics() {
+        return null;
     }
 }

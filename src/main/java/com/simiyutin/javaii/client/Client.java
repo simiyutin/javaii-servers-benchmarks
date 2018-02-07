@@ -1,7 +1,7 @@
 package com.simiyutin.javaii.client;
 
 import com.simiyutin.javaii.Configuration;
-import com.simiyutin.javaii.statistics.ClientStatistics;
+import com.simiyutin.javaii.statistics.ClientWorkTimeStatistic;
 
 import java.io.IOException;
 
@@ -9,7 +9,7 @@ public abstract class Client {
     protected String host;
     protected int port;
     protected Configuration conf;
-    private ClientStatistics statistics;
+    private ClientWorkTimeStatistic statistic;
 
     public Client(String host, int port, Configuration conf) {
         this.host = host;
@@ -21,12 +21,12 @@ public abstract class Client {
         long start = System.currentTimeMillis();
         startImpl();
         long end = System.currentTimeMillis();
-        statistics = new ClientStatistics();
-        statistics.timeOfWorkMillis = end - start;
+        statistic = new ClientWorkTimeStatistic();
+        statistic.timeMillis = end - start;
     }
 
-    public ClientStatistics getStatistics() {
-        return statistics;
+    public ClientWorkTimeStatistic getStatistic() {
+        return statistic;
     }
 
     public abstract void startImpl() throws IOException;

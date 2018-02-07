@@ -3,28 +3,23 @@ package com.simiyutin.javaii;
 import com.simiyutin.javaii.client.Client;
 import com.simiyutin.javaii.client.UDPClient;
 import com.simiyutin.javaii.server.Server;
-import com.simiyutin.javaii.server.tcp_async.TCPAsyncServer;
-import com.simiyutin.javaii.server.tcp_nonblocking.TCPNonBlockingServer;
-import com.simiyutin.javaii.server.tcp_serial.TCPSerialServer;
-import com.simiyutin.javaii.server.tcp_threadperclient.TCPThreadPerClientServer;
-import com.simiyutin.javaii.server.tcp_threadpool.TCPThreadPoolServer;
-import com.simiyutin.javaii.server.udp_threadperrequest.UDPThreadPerRequestServer;
 import com.simiyutin.javaii.server.udp_threadpool.UDPThreadpoolServer;
-import com.simiyutin.javaii.statistics.ClientStatistics;
+import com.simiyutin.javaii.statistics.ClientWorkTimeStatistic;
+import com.simiyutin.javaii.statistics.StatisticsProcessor;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class Main {
-    private static final List<ClientStatistics> clientStatistics = new ArrayList<>();
+    private static final List<ClientWorkTimeStatistic> clientWorkTimeStatistics = new ArrayList<>();
 
     // Для каждого сервера запускаем тест. Считаем зависимость первых двух метрик от времени и среднеее значения третьей метрики по всем M клиентам
     public static void main(String[] args) throws IOException {
+        StatisticsProcessor statisticsProcessor = new StatisticsProcessor();
 
         Configuration conf = new Configuration();
         conf.clientArraySize = 10;
@@ -46,10 +41,10 @@ public class Main {
 
         Supplier<Client> clientSupplier = () -> new UDPClient(host, port, conf);
 
-        runTest(serverSupplier, clientSupplier, conf);
+        runTest(serverSupplier, clientSupplier, conf, statisticsProcessor);
     }
 
-    private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier, Configuration conf) {
+    private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier, Configuration conf, StatisticsProcessor statisticsProcessor) {
         Server server = serverSupplier.get();
         if (server != null) {
             try {
@@ -75,7 +70,7 @@ public class Main {
                 Client client = clientSupplier.get();
                 try {
                     client.start();
-                    clientStatistics.add(client.getStatistics());
+                    clientWorkTimeStatistics.add(client.getStatistic());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -94,6 +89,10 @@ public class Main {
         System.out.println("all right!");
         server.stop();
 
-        System.out.println(clientStatistics);
+        statisticsProcessor.process(
+                clientWorkTimeStatistics,
+                server.getSortTimeStatistics(),
+                server.getServeTimeStatistics(),
+                conf);
     }
 }

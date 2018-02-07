@@ -2,12 +2,15 @@ package com.simiyutin.javaii.server.tcp_threadpool;
 
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.handlers.TCPSerialHandler;
+import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
+import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -68,5 +71,15 @@ public class TCPThreadPoolServer implements Server {
         } catch (IOException e) {}
 
         threadPool.shutdown();
+    }
+
+    @Override
+    public List<ServerSortTimeStatistic> getSortTimeStatistics() {
+        return null;
+    }
+
+    @Override
+    public List<ServerServeTimeStatistic> getServeTimeStatistics() {
+        return null;
     }
 }
