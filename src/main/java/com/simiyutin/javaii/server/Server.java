@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Server {
-    private final List<ServerSortTimeStatistic> sortTimeStatistics = new ArrayList<>();
-    private final List<ServerServeTimeStatistic> serveTimeStatistics = new ArrayList<>();
+    protected final List<ServerSortTimeStatistic> sortTimeStatistics = new ArrayList<>();
+    protected final List<ServerServeTimeStatistic> serveTimeStatistics = new ArrayList<>();
 
     public abstract void start() throws IOException;
     public abstract void stop();
