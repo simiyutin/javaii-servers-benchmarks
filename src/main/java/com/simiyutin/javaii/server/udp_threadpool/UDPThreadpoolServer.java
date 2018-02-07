@@ -4,8 +4,6 @@ import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
-import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
-import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.*;
 import java.net.DatagramPacket;
@@ -20,7 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class UDPThreadpoolServer implements Server {
+public class UDPThreadpoolServer extends Server {
     private final DatagramSocket serverSocket;
     private final Queue<Response> writeQueue;
     private final ExecutorService threadPool;
@@ -107,16 +105,6 @@ public class UDPThreadpoolServer implements Server {
 
         serverSocket.close();
         threadPool.shutdown();
-    }
-
-    @Override
-    public List<ServerSortTimeStatistic> getSortTimeStatistics() {
-        return null;
-    }
-
-    @Override
-    public List<ServerServeTimeStatistic> getServeTimeStatistics() {
-        return null;
     }
 
     private static class Response {

@@ -4,8 +4,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
-import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
-import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -19,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class TCPAsyncServer implements Server {
+public class TCPAsyncServer extends Server {
     private final AsynchronousServerSocketChannel serverSocket;
     private Thread listener;
 
@@ -66,16 +64,6 @@ public class TCPAsyncServer implements Server {
         try {
             serverSocket.close();
         } catch (IOException ignored) {}
-    }
-
-    @Override
-    public List<ServerSortTimeStatistic> getSortTimeStatistics() {
-        return null;
-    }
-
-    @Override
-    public List<ServerServeTimeStatistic> getServeTimeStatistics() {
-        return null;
     }
 
     private static class Attachment {

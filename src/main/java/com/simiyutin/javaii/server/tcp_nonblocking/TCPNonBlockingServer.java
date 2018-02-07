@@ -1,8 +1,6 @@
 package com.simiyutin.javaii.server.tcp_nonblocking;
 
 import com.simiyutin.javaii.server.Server;
-import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
-import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -10,11 +8,10 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class TCPNonBlockingServer implements Server {
+public class TCPNonBlockingServer extends Server {
 
     private final ServerSocketChannel serverSocket;
     private final Queue<SocketChannel> channelsQueue;
@@ -65,15 +62,5 @@ public class TCPNonBlockingServer implements Server {
         try {
             serverSocket.close();
         } catch (IOException ignored) {}
-    }
-
-    @Override
-    public List<ServerSortTimeStatistic> getSortTimeStatistics() {
-        return null;
-    }
-
-    @Override
-    public List<ServerServeTimeStatistic> getServeTimeStatistics() {
-        return null;
     }
 }
