@@ -17,7 +17,7 @@ public class TCPStatefulClient extends Client {
     }
 
     @Override
-    public void start() throws IOException {
+    public void startImpl() throws IOException {
         Socket socket = new Socket(host, port);
         for (int i = 0; i < conf.clientNumberOfRequests; i++) {
             TCPSerialCommunicator.communicate(socket, conf.clientArraySize);

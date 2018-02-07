@@ -22,11 +22,11 @@ public class UDPClient extends Client {
     }
 
     @Override
-    public void start() throws IOException {
+    public void startImpl() throws IOException {
         DatagramSocket socket = new DatagramSocket();
         InetAddress address = InetAddress.getByName(host);
         for (int i = 0; i < conf.clientNumberOfRequests; i++) {
-            System.out.println(String.format("client #%d, iter %d: start", id, i));
+            System.out.println(String.format("client #%d, iter %d: startt", id, i));
             UDPSerialCommunicator.communicate(socket, address, port, conf.clientArraySize);
             if (i != conf.clientNumberOfRequests - 1) {
                 try {

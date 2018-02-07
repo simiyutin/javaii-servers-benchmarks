@@ -10,6 +10,7 @@ import com.simiyutin.javaii.server.tcp_threadperclient.TCPThreadPerClientServer;
 import com.simiyutin.javaii.server.tcp_threadpool.TCPThreadPoolServer;
 import com.simiyutin.javaii.server.udp_threadperrequest.UDPThreadPerRequestServer;
 import com.simiyutin.javaii.server.udp_threadpool.UDPThreadpoolServer;
+import com.simiyutin.javaii.statistics.ClientStatistics;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class Main {
+    private static final List<ClientStatistics> clientStatistics = new ArrayList<>();
+
     // Для каждого сервера запускаем тест. Считаем зависимость первых двух метрик от времени и среднеее значения третьей метрики по всем M клиентам
     public static void main(String[] args) throws IOException {
 
@@ -72,6 +75,7 @@ public class Main {
                 Client client = clientSupplier.get();
                 try {
                     client.start();
+                    clientStatistics.add(client.getStatistics());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -89,5 +93,7 @@ public class Main {
 
         System.out.println("all right!");
         server.stop();
+
+        System.out.println(clientStatistics);
     }
 }
