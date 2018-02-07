@@ -28,7 +28,7 @@ public class TCPNonBlockingServer extends Server {
     @Override
     public void start() throws IOException {
 
-        channelsProcessor = new Thread(new SocketChannelsProcessor(channelsQueue));
+        channelsProcessor = new Thread(new SocketChannelsProcessor(channelsQueue, sortTimeStatistics, serveTimeStatistics));
         channelsProcessor.start();
 
         listener = new Thread(() -> {

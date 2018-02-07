@@ -4,6 +4,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
+import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -72,7 +74,7 @@ public class TCPAsyncServer extends Server {
         Reader reader;
     }
 
-    private static class ReaderHandler implements CompletionHandler<Integer, Attachment> {
+    private class ReaderHandler implements CompletionHandler<Integer, Attachment> {
 
         @Override
         public void completed(Integer result, Attachment attachment) {
@@ -85,7 +87,9 @@ public class TCPAsyncServer extends Server {
             } else {
                 MessageProtos.Message message = reader.parseMessage();
                 List<Integer> array = new ArrayList<>(message.getArrayList());
-                SortAlgorithm.sort(array);
+                long sortTime = SortAlgorithm.sort(array);
+                sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
+                serveTimeStatistics.add(new ServerServeTimeStatistic(sortTime));
                 MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
                 byte[] bytes = response.toByteArray();
                 buffer.putInt(bytes.length);
@@ -102,7 +106,7 @@ public class TCPAsyncServer extends Server {
         }
     }
 
-    private static class WriterHandler implements CompletionHandler<Integer, Attachment> {
+    private class WriterHandler implements CompletionHandler<Integer, Attachment> {
         @Override
         public void completed(Integer result, Attachment attachment) {
             AsynchronousSocketChannel socket = attachment.socket;

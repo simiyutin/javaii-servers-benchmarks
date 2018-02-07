@@ -2,6 +2,8 @@ package com.simiyutin.javaii.server.tcp_nonblocking;
 
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
+import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -21,14 +23,18 @@ public class SocketChannelsProcessor implements Runnable {
     private final Selector writeSelector;
     private final ExecutorService threadPool;
     private boolean stopped = false;
+    private final List<ServerSortTimeStatistic> sortTimeStatistics;
+    private final List<ServerServeTimeStatistic> serveTimeStatistics;
 
 
-    public SocketChannelsProcessor(Queue<SocketChannel> channelsQueue) throws IOException {
+    public SocketChannelsProcessor(Queue<SocketChannel> channelsQueue, List<ServerSortTimeStatistic> sortTimeStatistics, List<ServerServeTimeStatistic> serveTimeStatistics) throws IOException {
         this.channelsQueue = channelsQueue;
         this.resultQueue = new ArrayBlockingQueue<>(1024);
         this.readSelector = Selector.open();
         this.writeSelector = Selector.open();
         this.threadPool = Executors.newCachedThreadPool();
+        this.sortTimeStatistics = sortTimeStatistics;
+        this.serveTimeStatistics = serveTimeStatistics;
     }
 
     @Override
@@ -96,12 +102,14 @@ public class SocketChannelsProcessor implements Runnable {
             System.out.println("got full messages!");
         }
         for (MessageProtos.Message message : fullMessages) {
+            long startTime = System.currentTimeMillis();
             // не нужно упорядочивать ответы, потому что клиент шлет запрос и ждет
             threadPool.submit(() -> {
                 List<Integer> array = new ArrayList<>(message.getArrayList());
-                SortAlgorithm.sort(array);
+                long sortTime = SortAlgorithm.sort(array);
+                sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
                 MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
-                resultQueue.add(new Result(response, channel));
+                resultQueue.add(new Result(response, channel, startTime));
             });
         }
     }
@@ -110,6 +118,9 @@ public class SocketChannelsProcessor implements Runnable {
         Result result = resultQueue.poll();
 
         while (result != null) {
+            long endTime = System.currentTimeMillis();
+            serveTimeStatistics.add(new ServerServeTimeStatistic(endTime - result.startTime));
+
             MessageProtos.Message message = result.message;
             SocketChannel channel = result.channel;
             SelectionKey key = channel.register(writeSelector, SelectionKey.OP_WRITE);
@@ -146,11 +157,12 @@ public class SocketChannelsProcessor implements Runnable {
     private static class Result {
         MessageProtos.Message message;
         SocketChannel channel;
+        long startTime;
 
-        public Result(MessageProtos.Message message, SocketChannel channel) {
+        public Result(MessageProtos.Message message, SocketChannel channel, long startTime) {
             this.message = message;
             this.channel = channel;
+            this.startTime = startTime;
         }
     }
-
 }
