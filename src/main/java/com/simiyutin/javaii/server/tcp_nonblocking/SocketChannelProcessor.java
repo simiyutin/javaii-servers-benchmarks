@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class SocketChannelsProcessor implements Runnable {
+public class SocketChannelProcessor implements Runnable {
     private final Queue<SocketChannel> channelsQueue;
     private final Queue<Result> resultQueue;
     private final Selector readSelector;
@@ -28,7 +28,7 @@ public class SocketChannelsProcessor implements Runnable {
     private final Set<SelectionKey> cancelledKeys;
     private final Set<SelectionKey> resurrectedKeys;
 
-    public SocketChannelsProcessor(Queue<SocketChannel> channelsQueue, List<ServerSortTimeStatistic> sortTimeStatistics, List<ServerServeTimeStatistic> serveTimeStatistics) throws IOException {
+    public SocketChannelProcessor(Queue<SocketChannel> channelsQueue, List<ServerSortTimeStatistic> sortTimeStatistics, List<ServerServeTimeStatistic> serveTimeStatistics) throws IOException {
         this.channelsQueue = channelsQueue;
         this.resultQueue = new ArrayBlockingQueue<>(1024);
         this.readSelector = Selector.open();
@@ -95,7 +95,7 @@ public class SocketChannelsProcessor implements Runnable {
             System.out.println("new channel!");
             channel.configureBlocking(false);
             SelectionKey key = channel.register(readSelector, SelectionKey.OP_READ);
-            key.attach(new SocketChannelReaderProtobuf());
+            key.attach(new SocketChannelReader());
             channel = channelsQueue.poll();
         }
     }
@@ -115,7 +115,7 @@ public class SocketChannelsProcessor implements Runnable {
 
     private void readFromSocket(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-        SocketChannelReaderProtobuf reader = (SocketChannelReaderProtobuf) key.attachment();
+        SocketChannelReader reader = (SocketChannelReader) key.attachment();
         reader.read(channel);
         List<MessageProtos.Message> fullMessages = reader.getFullMessages();
 

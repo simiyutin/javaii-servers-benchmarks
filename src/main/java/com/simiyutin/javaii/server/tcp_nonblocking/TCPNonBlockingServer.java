@@ -2,7 +2,6 @@ package com.simiyutin.javaii.server.tcp_nonblocking;
 
 import com.simiyutin.javaii.server.Server;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedByInterruptException;
@@ -28,7 +27,7 @@ public class TCPNonBlockingServer extends Server {
     public void start() throws IOException {
         this.serverSocket = ServerSocketChannel.open();
         this.serverSocket.bind(new InetSocketAddress(port));
-        channelsProcessor = new Thread(new SocketChannelsProcessor(channelsQueue, sortTimeStatistics, serveTimeStatistics));
+        channelsProcessor = new Thread(new SocketChannelProcessor(channelsQueue, sortTimeStatistics, serveTimeStatistics));
         channelsProcessor.start();
 
         listener = new Thread(() -> {

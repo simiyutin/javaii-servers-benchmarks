@@ -8,7 +8,7 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SocketChannelReaderProtobuf {
+public class SocketChannelReader {
     private List<MessageProtos.Message> fullMessages = new ArrayList<>();
     private ByteBuffer buffer = ByteBuffer.allocate(1024);
     private byte[] data = null;
