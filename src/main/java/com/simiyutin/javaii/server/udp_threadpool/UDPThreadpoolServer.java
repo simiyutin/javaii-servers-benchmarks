@@ -21,21 +21,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class UDPThreadpoolServer extends Server {
-    private final DatagramSocket serverSocket;
+    private DatagramSocket serverSocket;
     private final Queue<Response> writeQueue;
     private final ExecutorService threadPool;
     private Thread writer;
     private Thread listener;
+    private final int port;
 
-    public UDPThreadpoolServer(int port) throws SocketException {
-        this.serverSocket = new DatagramSocket(port);
+    public UDPThreadpoolServer(int port) {
+        this.port = port;
         this.writeQueue = new ArrayBlockingQueue<>(1024);
         this.threadPool = Executors.newCachedThreadPool();
     }
 
     @Override
     public void start() throws IOException {
-
+        this.serverSocket = new DatagramSocket(port);
         writer = new Thread(() -> {
             while (!Thread.interrupted()) {
                 try {

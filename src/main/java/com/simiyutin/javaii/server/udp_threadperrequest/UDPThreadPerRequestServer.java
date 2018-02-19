@@ -16,16 +16,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public class UDPThreadPerRequestServer extends Server {
-    private final DatagramSocket serverSocket;
+    private DatagramSocket serverSocket;
     private Thread listener;
+    private final int port;
 
-    public UDPThreadPerRequestServer(int port) throws SocketException {
-        this.serverSocket = new DatagramSocket(port);
+    public UDPThreadPerRequestServer(int port) {
+        this.port = port;
     }
 
     @Override
     public void start() throws IOException {
-
+        this.serverSocket = new DatagramSocket(port);
         listener = new Thread(() -> {
             while (true) {
                 try {

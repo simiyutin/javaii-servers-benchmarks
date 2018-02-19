@@ -34,7 +34,7 @@ public class Main {
         conf.host = "localhost";
         conf.port = 11111;
 
-        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("tcp_async", conf);
+        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("udp_threadpool", conf);
 
         runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, statisticsProcessor);
     }
