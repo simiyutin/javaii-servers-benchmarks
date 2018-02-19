@@ -18,19 +18,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
+//todo создать один большой буффер и в него писать
 public class TCPAsyncServer extends Server {
-    private final AsynchronousServerSocketChannel serverSocket;
+    private AsynchronousServerSocketChannel serverSocket;
     private Thread listener;
+    private final int port;
 
-    public TCPAsyncServer(int port) throws IOException {
-        this.serverSocket = AsynchronousServerSocketChannel.open();
-        this.serverSocket.bind(new InetSocketAddress(port));
+    public TCPAsyncServer(int port) {
+        this.port = port;
     }
 
     @Override
-    public void start() {
-
+    public void start() throws IOException {
+        this.serverSocket = AsynchronousServerSocketChannel.open();
+        this.serverSocket.bind(new InetSocketAddress(port));
         listener = new Thread(() -> {
             while (!Thread.interrupted()) {
                 try {

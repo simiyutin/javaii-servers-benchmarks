@@ -28,13 +28,13 @@ public class Main {
 
         Configuration conf = new Configuration();
         conf.clientArraySize = 10;
-        conf.clientDeltaMillis = 0;
+        conf.clientDeltaMillis = 120;
         conf.clientNumberOfRequests = 100;
-        conf.numberOfClients = 100;
+        conf.numberOfClients = 10;
         conf.host = "localhost";
         conf.port = 11111;
 
-        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("tcp_nonblocking", conf);
+        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("tcp_async", conf);
 
         runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, statisticsProcessor);
     }
