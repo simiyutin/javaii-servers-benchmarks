@@ -1,14 +1,11 @@
 package com.simiyutin.javaii.client;
 
-import com.simiyutin.javaii.Configuration;
+import com.simiyutin.javaii.testarch.Configuration;
 import com.simiyutin.javaii.client.communicators.TCPSerialCommunicator;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 public class TCPStatefulClient extends Client {
 
@@ -25,7 +22,7 @@ public class TCPStatefulClient extends Client {
                 try {
                     TimeUnit.MILLISECONDS.sleep(conf.clientDeltaMillis);} catch (InterruptedException ignored) {}
             }
-            System.out.println(String.format("iter %d: OK", i));
+//            System.out.println(String.format("iter %d: OK", i));
         }
         socket.close();
     }

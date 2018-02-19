@@ -26,7 +26,7 @@ public class SortAlgorithm {
         List<Integer> expectedSortedArray = new ArrayList<>(originalArray);
         expectedSortedArray.sort(Comparator.comparing(Integer::intValue));
         if (!expectedSortedArray.equals(actualSortedArray)) {
-            throw new AssertionError("azaza lalka");
+            throw new AssertionError("client: got wrong response from server!");
         }
     }
 }

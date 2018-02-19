@@ -1,4 +1,4 @@
-package com.simiyutin.javaii;
+package com.simiyutin.javaii.testarch;
 
 public class Configuration {
     // количество элементов в сортируемых массивах

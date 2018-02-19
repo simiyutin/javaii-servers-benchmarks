@@ -1,6 +1,6 @@
 package com.simiyutin.javaii.statistics;
 
-import com.simiyutin.javaii.Configuration;
+import com.simiyutin.javaii.testarch.Configuration;
 
 import java.util.List;
 
@@ -9,6 +9,8 @@ public class StatisticsProcessor {
                         List<ServerSortTimeStatistic> serverSortTimeStatistics,
                         List<ServerServeTimeStatistic> serverServeTimeStatistics,
                         Configuration conf) {
-
+        System.out.println(clientWorkTimeStatistics);
+        System.out.println(serverSortTimeStatistics);
+        System.out.println(serverServeTimeStatistics);
     }
 }

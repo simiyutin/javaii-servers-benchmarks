@@ -1,6 +1,6 @@
 package com.simiyutin.javaii.client;
 
-import com.simiyutin.javaii.Configuration;
+import com.simiyutin.javaii.testarch.Configuration;
 import com.simiyutin.javaii.statistics.ClientWorkTimeStatistic;
 
 import java.io.IOException;
