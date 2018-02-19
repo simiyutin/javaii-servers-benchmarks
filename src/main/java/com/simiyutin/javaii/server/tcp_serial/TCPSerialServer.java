@@ -11,15 +11,17 @@ import java.net.Socket;
 import java.net.SocketException;
 
 public class TCPSerialServer extends Server {
-    private final ServerSocket serverSocket;
+    private final int port;
+    private ServerSocket serverSocket;
     private Thread listener;
 
-    public TCPSerialServer(int port) throws IOException {
-        this.serverSocket = new ServerSocket(port);
+    public TCPSerialServer(int port) {
+        this.port = port;
     }
 
     @Override
-    public void start() {
+    public void start() throws IOException {
+        this.serverSocket = new ServerSocket(port);
         listener = new Thread(() -> {
             while (!Thread.interrupted() && !serverSocket.isClosed()) {
                 try {

@@ -9,13 +9,13 @@ import java.util.concurrent.TimeUnit;
 
 public class TCPStatefulClient extends Client {
 
-    public TCPStatefulClient(String host, int port, Configuration conf) {
-        super(host, port, conf);
+    public TCPStatefulClient(Configuration conf) {
+        super(conf);
     }
 
     @Override
     public void startImpl() throws IOException {
-        Socket socket = new Socket(host, port);
+        Socket socket = new Socket(conf.host, conf.port);
         for (int i = 0; i < conf.clientNumberOfRequests; i++) {
             TCPSerialCommunicator.communicate(socket, conf.clientArraySize);
             if (i != conf.clientNumberOfRequests - 1) {

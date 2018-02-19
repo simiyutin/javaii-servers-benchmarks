@@ -6,14 +6,10 @@ import com.simiyutin.javaii.statistics.ClientWorkTimeStatistic;
 import java.io.IOException;
 
 public abstract class Client {
-    protected String host;
-    protected int port;
     protected Configuration conf;
     private ClientWorkTimeStatistic statistic;
 
-    public Client(String host, int port, Configuration conf) {
-        this.host = host;
-        this.port = port;
+    public Client(Configuration conf) {
         this.conf = conf;
     }
 

@@ -11,18 +11,18 @@ public class UDPClient extends Client {
     private static int gid = 0;
     private int id;
 
-    public UDPClient(String host, int port, Configuration conf) {
-        super(host, port, conf);
+    public UDPClient(Configuration conf) {
+        super(conf);
         this.id = gid++;
     }
 
     @Override
     public void startImpl() throws IOException {
         DatagramSocket socket = new DatagramSocket();
-        InetAddress address = InetAddress.getByName(host);
+        InetAddress address = InetAddress.getByName(conf.host);
         for (int i = 0; i < conf.clientNumberOfRequests; i++) {
 //            System.out.println(String.format("client #%d, iter %d: startt", id, i));
-            UDPSerialCommunicator.communicate(socket, address, port, conf.clientArraySize);
+            UDPSerialCommunicator.communicate(socket, address, conf.port, conf.clientArraySize);
             if (i != conf.clientNumberOfRequests - 1) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(conf.clientDeltaMillis);} catch (InterruptedException ignored) {}

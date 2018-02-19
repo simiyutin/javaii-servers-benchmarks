@@ -6,7 +6,9 @@ import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.tcp_threadperclient.TCPThreadPerClientServer;
 import com.simiyutin.javaii.statistics.ClientWorkTimeStatistic;
 import com.simiyutin.javaii.statistics.StatisticsProcessor;
+import com.simiyutin.javaii.testarch.ApplicationConfigurationFactory;
 import com.simiyutin.javaii.testarch.ClientRunner;
+import com.simiyutin.javaii.testarch.ClientServer;
 import com.simiyutin.javaii.testarch.Configuration;
 
 import java.io.IOException;
@@ -29,22 +31,12 @@ public class Main {
         conf.clientDeltaMillis = 100;
         conf.clientNumberOfRequests = 10;
         conf.numberOfClients = 10;
+        conf.host = "localhost";
+        conf.port = 11111;
 
-        String host = "localhost";
-        int port = 11111;
+        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("tcp_threadperclient", conf);
 
-        Supplier<Server> serverSupplier = () -> {
-            try {
-                return new TCPThreadPerClientServer(port);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        };
-
-        Supplier<Client> clientSupplier = () -> new TCPStatefulClient(host, port, conf);
-
-        runTest(serverSupplier, clientSupplier, conf, statisticsProcessor);
+        runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, statisticsProcessor);
     }
 
     private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier, Configuration conf, StatisticsProcessor statisticsProcessor) {

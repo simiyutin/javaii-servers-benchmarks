@@ -9,4 +9,7 @@ public class Configuration {
     public int clientNumberOfRequests;
     // количество одновременно работающих клиентов
     public int numberOfClients;
+
+    public String host;
+    public int port;
 }

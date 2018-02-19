@@ -12,15 +12,17 @@ import java.net.Socket;
 import java.net.SocketException;
 
 public class TCPThreadPerClientServer extends Server {
-    private final ServerSocket serverSocket;
+    private final int port;
+    private ServerSocket serverSocket;
     private Thread listener;
 
-    public TCPThreadPerClientServer(int port) throws IOException {
-        this.serverSocket = new ServerSocket(port);
+    public TCPThreadPerClientServer(int port) {
+        this.port = port;
     }
 
     @Override
-    public void start() {
+    public void start() throws IOException {
+        this.serverSocket = new ServerSocket(port);
         listener = new Thread(() -> {
             while (!Thread.interrupted() && !serverSocket.isClosed()) {
                 try {

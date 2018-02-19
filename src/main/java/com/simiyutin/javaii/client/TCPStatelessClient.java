@@ -9,14 +9,14 @@ import java.util.concurrent.TimeUnit;
 
 public class TCPStatelessClient extends Client {
 
-    public TCPStatelessClient(String host, int port, Configuration conf) {
-        super(host, port, conf);
+    public TCPStatelessClient(Configuration conf) {
+        super(conf);
     }
 
     @Override
     public void startImpl() throws IOException {
         for (int i = 0; i < conf.clientNumberOfRequests; i++) {
-            Socket socket = new Socket(host, port);
+            Socket socket = new Socket(conf.host, conf.port);
             TCPSerialCommunicator.communicate(socket, conf.clientArraySize);
             if (i != conf.clientNumberOfRequests - 1) {
                 try {TimeUnit.MILLISECONDS.sleep(conf.clientDeltaMillis);} catch (InterruptedException ignored) {}
