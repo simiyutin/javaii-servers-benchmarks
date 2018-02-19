@@ -14,17 +14,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TCPThreadPoolServer extends Server {
-    private final ServerSocket serverSocket;
+    private ServerSocket serverSocket;
     private final ExecutorService threadPool;
     private Thread listener;
+    private final int port;
 
-    public TCPThreadPoolServer(int port) throws IOException {
-        this.serverSocket = new ServerSocket(port);
+    public TCPThreadPoolServer(int port) {
+        this.port = port;
+
         this.threadPool = Executors.newCachedThreadPool();
     }
 
     @Override
-    public void start() {
+    public void start() throws IOException {
+        this.serverSocket = new ServerSocket(port);
         listener = new Thread(() -> {
             while (!Thread.interrupted()) {
                 try {

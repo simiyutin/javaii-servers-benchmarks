@@ -34,7 +34,7 @@ public class Main {
         conf.host = "localhost";
         conf.port = 11111;
 
-        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("tcp_threadperclient", conf);
+        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("tcp_threadpool", conf);
 
         runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, statisticsProcessor);
     }

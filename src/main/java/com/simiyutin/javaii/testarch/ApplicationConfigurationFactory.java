@@ -6,6 +6,7 @@ import com.simiyutin.javaii.client.TCPStatelessClient;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.tcp_serial.TCPSerialServer;
 import com.simiyutin.javaii.server.tcp_threadperclient.TCPThreadPerClientServer;
+import com.simiyutin.javaii.server.tcp_threadpool.TCPThreadPoolServer;
 
 import java.util.function.Supplier;
 
@@ -22,6 +23,10 @@ public class ApplicationConfigurationFactory {
             case "tcp_threadperclient":
                 clientSupplier = () -> new TCPStatefulClient(conf);
                 serverSupplier = () -> new TCPThreadPerClientServer(conf.port);
+                break;
+            case "tcp_threadpool":
+                clientSupplier = () -> new TCPStatefulClient(conf);
+                serverSupplier = () -> new TCPThreadPoolServer(conf.port);
                 break;
         }
 
