@@ -25,7 +25,8 @@ public class SocketChannelsProcessor implements Runnable {
     private boolean stopped = false;
     private final List<ServerSortTimeStatistic> sortTimeStatistics;
     private final List<ServerServeTimeStatistic> serveTimeStatistics;
-
+    private final Set<SelectionKey> cancelledKeys;
+    private final Set<SelectionKey> resurrectedKeys;
 
     public SocketChannelsProcessor(Queue<SocketChannel> channelsQueue, List<ServerSortTimeStatistic> sortTimeStatistics, List<ServerServeTimeStatistic> serveTimeStatistics) throws IOException {
         this.channelsQueue = channelsQueue;
@@ -35,6 +36,8 @@ public class SocketChannelsProcessor implements Runnable {
         this.threadPool = Executors.newCachedThreadPool();
         this.sortTimeStatistics = sortTimeStatistics;
         this.serveTimeStatistics = serveTimeStatistics;
+        this.cancelledKeys = new HashSet<>();
+        this.resurrectedKeys = new HashSet<>();
     }
 
     @Override
@@ -66,12 +69,30 @@ public class SocketChannelsProcessor implements Runnable {
         }
         readFromChannels();
         registerReadyTasks();
+        resurrectKeys();
+        cancelKeys();
         writeToChannels();
+    }
+
+    private void resurrectKeys() {
+        for (SelectionKey key : resurrectedKeys) {
+            cancelledKeys.remove(key);
+        }
+        resurrectedKeys.clear();
+    }
+
+    private void cancelKeys() {
+        for (SelectionKey key : cancelledKeys) {
+            System.out.println("key cancelled!");
+            key.cancel();
+        }
+        cancelledKeys.clear();
     }
 
     private void registerNewChannels() throws IOException {
         SocketChannel channel = channelsQueue.poll();
         while (channel != null) {
+            System.out.println("new channel!");
             channel.configureBlocking(false);
             SelectionKey key = channel.register(readSelector, SelectionKey.OP_READ);
             key.attach(new SocketChannelReaderProtobuf());
@@ -103,7 +124,6 @@ public class SocketChannelsProcessor implements Runnable {
         }
         for (MessageProtos.Message message : fullMessages) {
             long startTime = System.currentTimeMillis();
-            // не нужно упорядочивать ответы, потому что клиент шлет запрос и ждет
             threadPool.submit(() -> {
                 List<Integer> array = new ArrayList<>(message.getArrayList());
                 long sortTime = SortAlgorithm.sort(array);
@@ -123,9 +143,15 @@ public class SocketChannelsProcessor implements Runnable {
 
             MessageProtos.Message message = result.message;
             SocketChannel channel = result.channel;
-            SelectionKey key = channel.register(writeSelector, SelectionKey.OP_WRITE);
-            if (key.attachment() == null) {
+            SelectionKey key = channel.keyFor(writeSelector);
+            if (key == null) {
+                System.out.println("new key!");
+                key = channel.register(writeSelector, SelectionKey.OP_WRITE);
                 key.attach(new SocketChannelWriter());
+            }
+            resurrectedKeys.add(key);
+            if (!key.isValid()) {
+                System.out.println("oooooops!!!");
             }
             SocketChannelWriter writer = (SocketChannelWriter) key.attachment();
             writer.addMessage(message);
@@ -150,7 +176,7 @@ public class SocketChannelsProcessor implements Runnable {
     private void writeToSocket(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         SocketChannelWriter writer = (SocketChannelWriter) key.attachment();
-        Runnable unsubscribeHook = key::cancel;
+        Runnable unsubscribeHook = () -> cancelledKeys.add(key);;
         writer.write(channel, unsubscribeHook);
     }
 

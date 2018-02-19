@@ -27,14 +27,14 @@ public class Main {
         StatisticsProcessor statisticsProcessor = new StatisticsProcessor();
 
         Configuration conf = new Configuration();
-        conf.clientArraySize = 1000;
-        conf.clientDeltaMillis = 100;
-        conf.clientNumberOfRequests = 10;
-        conf.numberOfClients = 10;
+        conf.clientArraySize = 10;
+        conf.clientDeltaMillis = 0;
+        conf.clientNumberOfRequests = 100;
+        conf.numberOfClients = 100;
         conf.host = "localhost";
         conf.port = 11111;
 
-        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("tcp_threadpool", conf);
+        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("tcp_nonblocking", conf);
 
         runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, statisticsProcessor);
     }

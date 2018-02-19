@@ -12,22 +12,22 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class TCPNonBlockingServer extends Server {
-
-    private final ServerSocketChannel serverSocket;
+    private ServerSocketChannel serverSocket;
     private final Queue<SocketChannel> channelsQueue;
     private final int CHANNELS_QUEUE_CAPACITY = 1024;
     private Thread channelsProcessor;
     private Thread listener;
+    private final int port;
 
-    public TCPNonBlockingServer(int port) throws IOException {
-        this.serverSocket = ServerSocketChannel.open();
-        this.serverSocket.bind(new InetSocketAddress(port));
+    public TCPNonBlockingServer(int port) {
+        this.port = port;
         this.channelsQueue = new ArrayBlockingQueue<>(CHANNELS_QUEUE_CAPACITY);
     }
 
     @Override
     public void start() throws IOException {
-
+        this.serverSocket = ServerSocketChannel.open();
+        this.serverSocket.bind(new InetSocketAddress(port));
         channelsProcessor = new Thread(new SocketChannelsProcessor(channelsQueue, sortTimeStatistics, serveTimeStatistics));
         channelsProcessor.start();
 
@@ -35,6 +35,7 @@ public class TCPNonBlockingServer extends Server {
             while (!Thread.interrupted() && serverSocket.isOpen()) {
                 try {
                     SocketChannel socket = serverSocket.accept();
+                    System.out.println("new channel accept!");
                     channelsQueue.add(socket);
                 }
                 catch (ClosedByInterruptException ex) {

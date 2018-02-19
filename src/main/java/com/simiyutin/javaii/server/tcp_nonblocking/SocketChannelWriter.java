@@ -9,18 +9,20 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class SocketChannelWriter {
-    private Queue<byte[]> messageQueue = new ArrayBlockingQueue<>(1024);
+    private Queue<byte[]> messageQueue = new ArrayBlockingQueue<>(1024); // todo может быть обычная очередь
     private ByteBuffer curBuffer = ByteBuffer.allocate(128);
+
+    public SocketChannelWriter() {
+        curBuffer.flip();
+    }
 
     public void addMessage(MessageProtos.Message message) {
         messageQueue.add(message.toByteArray());
-        curBuffer.flip();
     }
 
     public void write(SocketChannel channel, Runnable unsubscribeHook) throws IOException {
 
-        int bytesWritten;
-        do {
+        while (!messageQueue.isEmpty()) {
             // contract - curBuffer is always in read-mode outside this if block
             if (!curBuffer.hasRemaining()) {
                 byte[] message = messageQueue.poll();
@@ -33,10 +35,13 @@ public class SocketChannelWriter {
                 curBuffer.put(message);
                 curBuffer.flip();
             }
-            bytesWritten = channel.write(curBuffer);
-        } while (bytesWritten > 0 && !messageQueue.isEmpty());
+            int bytesWritten = channel.write(curBuffer);
+            if (bytesWritten <= 0) {
+                break;
+            }
+        }
 
-        if (messageQueue.isEmpty()) {
+        if (messageQueue.isEmpty() && !curBuffer.hasRemaining()) {
             unsubscribeHook.run();
         }
     }
