@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class Main {
@@ -30,7 +31,7 @@ public class Main {
         Configuration conf = new Configuration();
         conf.clientArraySize = 1000;
         conf.clientDeltaMillis = 50;
-        conf.clientNumberOfRequests = 100;
+        conf.clientNumberOfRequests = 10;
         conf.numberOfClients = 30;
         conf.host = "localhost";
         conf.port = 11111;
@@ -44,12 +45,19 @@ public class Main {
                 "udp_threadpool",
                 "udp_threadperrequest"
         );
-        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("tcp_async", conf);
 
-        runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, statisticsProcessor);
+        for (String arch : archs) {
+            ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration(arch, conf);
+            runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, arch, statisticsProcessor);
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier, Configuration conf, StatisticsProcessor statisticsProcessor) {
+    private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier, Configuration conf, String curArch, StatisticsProcessor statisticsProcessor) {
         System.out.println("starting server..");
         Server server = serverSupplier.get();
         if (server != null) {
@@ -88,6 +96,6 @@ public class Main {
                 clientWorkTimeStatistics,
                 server.getSortTimeStatistics(),
                 server.getServeTimeStatistics(),
-                conf);
+                conf, curArch);
     }
 }
