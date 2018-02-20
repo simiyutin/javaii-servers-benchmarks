@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-//todo создать один большой буффер и в него писать
+
 public class TCPAsyncServer extends Server {
     private AsynchronousServerSocketChannel serverSocket;
     private Thread listener;
@@ -82,7 +82,7 @@ public class TCPAsyncServer extends Server {
             Reader reader = attachment.reader;
             ByteBuffer buffer = attachment.buffer;
             AsynchronousSocketChannel socket = attachment.socket;
-            reader.feed(buffer);
+            reader.readFromBuffer(buffer);
             if (!reader.finished()) {
                 socket.read(buffer, attachment, this);
             } else {
@@ -93,6 +93,10 @@ public class TCPAsyncServer extends Server {
                 serveTimeStatistics.add(new ServerServeTimeStatistic(sortTime));
                 MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
                 byte[] bytes = response.toByteArray();
+                if (buffer.capacity() < bytes.length + 4) {
+                    buffer = ByteBuffer.allocate(bytes.length + 4);
+                    attachment.buffer = buffer;
+                }
                 buffer.putInt(bytes.length);
                 buffer.put(bytes);
                 buffer.flip();
@@ -146,7 +150,7 @@ public class TCPAsyncServer extends Server {
             return result;
         }
 
-        void feed(ByteBuffer buffer) {
+        void readFromBuffer(ByteBuffer buffer) {
             buffer.flip();
             while (buffer.remaining() > 0) {
                 if (data == null && buffer.remaining() < 4) {

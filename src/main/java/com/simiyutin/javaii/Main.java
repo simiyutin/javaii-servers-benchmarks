@@ -44,7 +44,7 @@ public class Main {
                 "udp_threadpool",
                 "udp_threadperrequest"
         );
-        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("udp_threadperrequest", conf);
+        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("tcp_async", conf);
 
         runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, statisticsProcessor);
     }
