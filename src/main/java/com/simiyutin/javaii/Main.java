@@ -12,10 +12,7 @@ import com.simiyutin.javaii.testarch.ClientServer;
 import com.simiyutin.javaii.testarch.Configuration;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
@@ -24,37 +21,65 @@ import java.util.function.Supplier;
 public class Main {
     private static final List<ClientWorkTimeStatistic> clientWorkTimeStatistics = Collections.synchronizedList(new ArrayList<>());
 
-    // Для каждого сервера запускаем тест. Считаем зависимость первых двух метрик от времени и среднеее значения третьей метрики по всем M клиентам
+//    Выбрать архитекту, которую мы тестируем.
+//    Задать число X.
+//    Выбрать параметр, который будет меняться в ходе тестирования (N, M или ∆)
+//    Задать в каких пределах и с каким шагом он будет изменяться
+//    Задать постоянные значения других параметров
+
     public static void main(String[] args) {
-        StatisticsProcessor statisticsProcessor = new StatisticsProcessor();
 
-        Configuration conf = new Configuration();
-        conf.clientArraySize = 1000;
-        conf.clientDeltaMillis = 50;
-        conf.clientNumberOfRequests = 10;
-        conf.numberOfClients = 30;
-        conf.host = "localhost";
-        conf.port = 11111;
+        String selectedArch = "tcp_serial";
+        int X = 1000;
+        String varying = "N";
+        int varMin = 1000;
+        int varMax = 10000;
+        int varStep = 1000;
+        String secondParam = "M";
+        int secondVal = 10;
+        String thirdParam = "D";
+        int thirdVal = 10;
 
-        List<String> archs = Arrays.asList(
-                "tcp_serial",
-                "tcp_threadperclient",
-                "tcp_threadpool",
-                "tcp_nonblocking",
-                "tcp_async",
-                "udp_threadpool",
-                "udp_threadperrequest"
-        );
+        Map<String, Integer> params = new HashMap<>();
+        params.put(varying, varMin);
+        params.put(secondParam, secondVal);
+        params.put(thirdParam, thirdVal);
 
-        for (String arch : archs) {
-            ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration(arch, conf);
-            runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, arch, statisticsProcessor);
+        while (params.get(varying) <= varMax) {
+            StatisticsProcessor statisticsProcessor = new StatisticsProcessor();
+
+            Configuration conf = new Configuration();
+            conf.clientArraySize = params.get("N");
+            conf.clientDeltaMillis = params.get("D");
+            conf.clientNumberOfRequests = X;
+            conf.numberOfClients = params.get("M");
+            conf.host = "localhost";
+            conf.port = 11111;
+
+            ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration(selectedArch, conf);
+            runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, selectedArch, statisticsProcessor);
             try {
                 TimeUnit.SECONDS.sleep(5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            params.put(varying, params.get(varying) + varStep);
         }
+
+
+
+
+//        List<String> archs = Arrays.asList(
+//                "tcp_serial",
+//                "tcp_threadperclient",
+//                "tcp_threadpool",
+//                "tcp_nonblocking",
+//                "tcp_async",
+//                "udp_threadpool",
+//                "udp_threadperrequest"
+//        );
+
     }
 
     private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier, Configuration conf, String curArch, StatisticsProcessor statisticsProcessor) {
