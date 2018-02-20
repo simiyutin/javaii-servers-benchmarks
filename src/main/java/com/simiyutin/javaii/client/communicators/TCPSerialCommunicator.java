@@ -1,5 +1,6 @@
 package com.simiyutin.javaii.client.communicators;
 
+import com.simiyutin.javaii.client.MessageFactory;
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.SortAlgorithm;
@@ -13,19 +14,12 @@ import java.util.stream.IntStream;
 public class TCPSerialCommunicator {
     public static void communicate(Socket socket, int arraySize) throws IOException {
         // request
-        List<Integer> array = IntStream.range(0, arraySize).
-                map(i -> ~i).sorted().map(i -> ~i) // reverse order
-                .boxed().collect(Collectors.toList());
-
-        MessageProtos.Message message = MessageProtos.Message.newBuilder()
-                .addAllArray(array)
-                .build();
-
+        MessageProtos.Message message = MessageFactory.createMessage(arraySize);
         SerializationWrapper.serialize(message, socket.getOutputStream());
 
         // response
         MessageProtos.Message result = SerializationWrapper.deserialize(socket.getInputStream());
         List<Integer> resultArray = result.getArrayList();
-        SortAlgorithm.checkSorted(array, resultArray);
+        SortAlgorithm.checkSorted(message.getArrayList(), resultArray);
     }
 }
