@@ -37,7 +37,7 @@ public class TCPAsyncServer extends Server {
                 try {
                     Future<AsynchronousSocketChannel> socketFuture = serverSocket.accept();
                     AsynchronousSocketChannel socket = socketFuture.get();
-                    ByteBuffer buffer = ByteBuffer.allocate(1024); //todo what if larger array?
+                    ByteBuffer buffer = ByteBuffer.allocate(1024);
                     Reader reader = new Reader();
                     Attachment attachment = new Attachment();
                     attachment.buffer = buffer;

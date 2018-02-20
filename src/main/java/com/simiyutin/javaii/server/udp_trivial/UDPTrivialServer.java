@@ -27,13 +27,10 @@ public class UDPTrivialServer extends Server{
                 try {
                     DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                     serverSocket.receive(receivePacket);
-                    System.out.println("server: packet received!");
                     DatagramPacket responsePacket = new DatagramPacket(buffer, buffer.length, receivePacket.getAddress(), receivePacket.getPort()); // todo ???
                     serverSocket.send(responsePacket);
-                    System.out.println("server: packet sent!");
                 }
                 catch (SocketException ex) {
-                    System.out.println("socket exception!");
                     return;
                 }
                 catch (IOException ex) {

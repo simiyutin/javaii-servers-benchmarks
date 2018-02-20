@@ -31,16 +31,12 @@ public class UDPSerialCommunicator {
         socket.send(sendPacket);
 
         // response
-//        System.out.println(String.format("client #%d, packet %d: sent!", id, i));
         DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
         try {
             socket.receive(receivePacket);
         } catch (SocketTimeoutException ex) {
-            System.out.println("got timeout, trying again");
             return false;
         }
-
-//        System.out.println(String.format("client #%d, packet %d: received!", id, i));
 
         ByteArrayInputStream bais = new ByteArrayInputStream(buffer);
         try {
@@ -48,7 +44,7 @@ public class UDPSerialCommunicator {
             List<Integer> result = response.getArrayList();
             SortAlgorithm.checkSorted(message.getArrayList(), result);
         } catch (InvalidProtocolBufferException ex) {
-            System.out.println("invalid message, trying again");
+            System.out.println("invalid protobuf message, trying again");
             return false;
         } catch (AssertionError ex) {
             System.out.println("unexpected message, trying again");

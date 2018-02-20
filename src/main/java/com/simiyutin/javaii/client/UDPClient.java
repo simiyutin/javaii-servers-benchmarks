@@ -31,7 +31,6 @@ public class UDPClient extends Client {
         socket.setSoTimeout(timeout);
         InetAddress address = InetAddress.getByName(conf.host);
         for (int i = 0; i < conf.clientNumberOfRequests;) {
-            System.out.println(String.format("client #%d, iter %d: startt", id, i));
             boolean succesfullyCommunicated = UDPSerialCommunicator.communicate(socket, buffer, address, conf.port, conf.clientArraySize);
             if (!succesfullyCommunicated) {
                 continue;
@@ -40,7 +39,6 @@ public class UDPClient extends Client {
                 try {
                     TimeUnit.MILLISECONDS.sleep(conf.clientDeltaMillis);} catch (InterruptedException ignored) {}
             }
-            System.out.println(String.format("client #%d, iter %d: OK", id, i));
             i++;
         }
     }

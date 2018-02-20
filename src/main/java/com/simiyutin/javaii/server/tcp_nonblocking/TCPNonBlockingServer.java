@@ -34,11 +34,9 @@ public class TCPNonBlockingServer extends Server {
             while (!Thread.interrupted() && serverSocket.isOpen()) {
                 try {
                     SocketChannel socket = serverSocket.accept();
-                    System.out.println("new channel accept!");
                     channelsQueue.add(socket);
                 }
                 catch (ClosedByInterruptException ex) {
-                    System.out.println("listener closed!");
                     return;
                 }
                 catch (IOException e) {

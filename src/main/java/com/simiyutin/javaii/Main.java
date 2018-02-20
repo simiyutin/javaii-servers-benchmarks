@@ -13,6 +13,7 @@ import com.simiyutin.javaii.testarch.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -27,14 +28,23 @@ public class Main {
         StatisticsProcessor statisticsProcessor = new StatisticsProcessor();
 
         Configuration conf = new Configuration();
-        conf.clientArraySize = 10000;
-        conf.clientDeltaMillis = 0;
-        conf.clientNumberOfRequests = 10;
-        conf.numberOfClients = 20;
+        conf.clientArraySize = 1000;
+        conf.clientDeltaMillis = 50;
+        conf.clientNumberOfRequests = 100;
+        conf.numberOfClients = 30;
         conf.host = "localhost";
         conf.port = 11111;
 
-        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("udp_threadpool", conf);
+        List<String> archs = Arrays.asList(
+                "tcp_serial",
+                "tcp_threadperclient",
+                "tcp_threadpool",
+                "tcp_nonblocking",
+                "tcp_async",
+                "udp_threadpool",
+                "udp_threadperrequest"
+        );
+        ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration("udp_threadperrequest", conf);
 
         runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, statisticsProcessor);
     }

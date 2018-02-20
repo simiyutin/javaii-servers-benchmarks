@@ -79,7 +79,6 @@ public class UDPThreadpoolServer extends Server {
                 try {
                     DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                     serverSocket.receive(receivePacket);
-                    System.out.println("received packet!");
                     MessageProtos.Message message = SerializationWrapper.deserialize(new ByteArrayInputStream(receivePacket.getData()));
                     List<Integer> array = new ArrayList<>(message.getArrayList());
 

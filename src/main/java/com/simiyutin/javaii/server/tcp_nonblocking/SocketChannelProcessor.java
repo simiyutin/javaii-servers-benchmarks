@@ -50,9 +50,8 @@ public class SocketChannelProcessor implements Runnable {
             }
 
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(50);
             } catch (InterruptedException e) {
-                System.out.println("processor closed!");
                 stopped = true;
             }
         }
@@ -83,7 +82,6 @@ public class SocketChannelProcessor implements Runnable {
 
     private void cancelKeys() {
         for (SelectionKey key : cancelledKeys) {
-            System.out.println("key cancelled!");
             key.cancel();
         }
         cancelledKeys.clear();
@@ -92,7 +90,6 @@ public class SocketChannelProcessor implements Runnable {
     private void registerNewChannels() throws IOException {
         SocketChannel channel = channelsQueue.poll();
         while (channel != null) {
-            System.out.println("new channel!");
             channel.configureBlocking(false);
             SelectionKey key = channel.register(readSelector, SelectionKey.OP_READ);
             key.attach(new SocketChannelReader());
@@ -119,9 +116,6 @@ public class SocketChannelProcessor implements Runnable {
         reader.read(channel);
         List<MessageProtos.Message> fullMessages = reader.getFullMessages();
 
-        if (fullMessages.size() > 0) {
-            System.out.println("got full messages!");
-        }
         for (MessageProtos.Message message : fullMessages) {
             long startTime = System.currentTimeMillis();
             threadPool.submit(() -> {
@@ -145,14 +139,10 @@ public class SocketChannelProcessor implements Runnable {
             SocketChannel channel = result.channel;
             SelectionKey key = channel.keyFor(writeSelector);
             if (key == null) {
-                System.out.println("new key!");
                 key = channel.register(writeSelector, SelectionKey.OP_WRITE);
                 key.attach(new SocketChannelWriter());
             }
             resurrectedKeys.add(key);
-            if (!key.isValid()) {
-                System.out.println("oooooops!!!");
-            }
             SocketChannelWriter writer = (SocketChannelWriter) key.attachment();
             writer.addMessage(message);
 
