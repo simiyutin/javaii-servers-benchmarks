@@ -1,5 +1,6 @@
 package com.simiyutin.javaii.server.udp_threadperrequest;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.Server;
@@ -19,9 +20,11 @@ public class UDPThreadPerRequestServer extends Server {
     private DatagramSocket serverSocket;
     private Thread listener;
     private final int port;
+    private final byte[] buffer;
 
     public UDPThreadPerRequestServer(int port) {
         this.port = port;
+        this.buffer = new byte[60000];
     }
 
     @Override
@@ -30,9 +33,7 @@ public class UDPThreadPerRequestServer extends Server {
         listener = new Thread(() -> {
             while (true) {
                 try {
-
-                    byte[] receive = new byte[1024];
-                    DatagramPacket receivePacket = new DatagramPacket(receive, receive.length); //todo ???
+                    DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                     serverSocket.receive(receivePacket);
                     new Thread(() -> {
                         try {
@@ -47,9 +48,12 @@ public class UDPThreadPerRequestServer extends Server {
                             SerializationWrapper.serialize(response, baos);
 
                             byte[] bytes = baos.toByteArray();
-                            DatagramPacket responsePacket = new DatagramPacket(bytes, bytes.length, receivePacket.getAddress(), receivePacket.getPort()); // todo ???
+                            System.arraycopy(bytes, 0, buffer, 0, bytes.length);
+                            DatagramPacket responsePacket = new DatagramPacket(buffer, buffer.length, receivePacket.getAddress(), receivePacket.getPort()); // todo ???
                             serverSocket.send(responsePacket);
 
+                        } catch (InvalidProtocolBufferException ex) {
+                            System.out.println("server: invalid protobuf message");
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }

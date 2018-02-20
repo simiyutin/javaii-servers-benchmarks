@@ -23,14 +23,14 @@ public class Main {
     private static final List<ClientWorkTimeStatistic> clientWorkTimeStatistics = Collections.synchronizedList(new ArrayList<>());
 
     // Для каждого сервера запускаем тест. Считаем зависимость первых двух метрик от времени и среднеее значения третьей метрики по всем M клиентам
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         StatisticsProcessor statisticsProcessor = new StatisticsProcessor();
 
         Configuration conf = new Configuration();
-        conf.clientArraySize = 10;
-        conf.clientDeltaMillis = 120;
-        conf.clientNumberOfRequests = 100;
-        conf.numberOfClients = 10;
+        conf.clientArraySize = 10000;
+        conf.clientDeltaMillis = 0;
+        conf.clientNumberOfRequests = 10;
+        conf.numberOfClients = 20;
         conf.host = "localhost";
         conf.port = 11111;
 
@@ -64,6 +64,7 @@ public class Main {
         for (Thread thread : clients) {
             try {
                 thread.join();
+                System.out.println("client joined!");
             } catch (InterruptedException e) {
                 throw new AssertionError("failed to join client");
             }

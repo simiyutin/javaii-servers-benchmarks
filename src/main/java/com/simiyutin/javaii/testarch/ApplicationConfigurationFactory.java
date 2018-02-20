@@ -1,9 +1,6 @@
 package com.simiyutin.javaii.testarch;
 
-import com.simiyutin.javaii.client.Client;
-import com.simiyutin.javaii.client.TCPStatefulClient;
-import com.simiyutin.javaii.client.TCPStatelessClient;
-import com.simiyutin.javaii.client.UDPClient;
+import com.simiyutin.javaii.client.*;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.tcp_async.TCPAsyncServer;
 import com.simiyutin.javaii.server.tcp_nonblocking.TCPNonBlockingServer;
@@ -12,6 +9,7 @@ import com.simiyutin.javaii.server.tcp_threadperclient.TCPThreadPerClientServer;
 import com.simiyutin.javaii.server.tcp_threadpool.TCPThreadPoolServer;
 import com.simiyutin.javaii.server.udp_threadperrequest.UDPThreadPerRequestServer;
 import com.simiyutin.javaii.server.udp_threadpool.UDPThreadpoolServer;
+import com.simiyutin.javaii.server.udp_trivial.UDPTrivialServer;
 
 import java.util.function.Supplier;
 
@@ -48,6 +46,10 @@ public class ApplicationConfigurationFactory {
             case "udp_threadpool":
                 clientSupplier = () -> new UDPClient(conf);
                 serverSupplier = () -> new UDPThreadpoolServer(conf.port);
+                break;
+            case "udp_trivial":
+                clientSupplier = () -> new UDPTrivialClient(conf);
+                serverSupplier = () -> new UDPTrivialServer(conf.port);
                 break;
         }
 

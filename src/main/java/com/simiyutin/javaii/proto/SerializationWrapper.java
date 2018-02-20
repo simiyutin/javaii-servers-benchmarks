@@ -5,10 +5,11 @@ import com.google.protobuf.CodedOutputStream;
 import java.io.*;
 
 public class SerializationWrapper {
-    public static void serialize(MessageProtos.Message message, OutputStream os) throws IOException {
+    public static int serialize(MessageProtos.Message message, OutputStream os) throws IOException {
         byte[] array = message.toByteArray();
         new DataOutputStream(os).writeInt(array.length);
         os.write(array);
+        return array.length + 4;
     }
 
     public static MessageProtos.Message deserialize(InputStream is) throws IOException {

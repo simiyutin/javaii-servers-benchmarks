@@ -1,5 +1,6 @@
 package com.simiyutin.javaii.server.udp_threadpool;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.Server;
@@ -27,11 +28,13 @@ public class UDPThreadpoolServer extends Server {
     private Thread writer;
     private Thread listener;
     private final int port;
+    private final byte[] buffer;
 
     public UDPThreadpoolServer(int port) {
         this.port = port;
         this.writeQueue = new ArrayBlockingQueue<>(1024);
         this.threadPool = Executors.newCachedThreadPool();
+        this.buffer = new byte[60000];
     }
 
     @Override
@@ -62,8 +65,9 @@ public class UDPThreadpoolServer extends Server {
                         return;
                     }
 
-                }
-                catch (IOException ex) {
+                } catch (InvalidProtocolBufferException ex) {
+                    System.out.println("server: invalid protobuf message");
+                } catch (IOException ex) {
                     ex.printStackTrace();
                 }
             }
@@ -73,9 +77,9 @@ public class UDPThreadpoolServer extends Server {
         listener = new Thread(() -> {
             while (!Thread.interrupted()) {
                 try {
-                    byte[] receive = new byte[1024];
-                    DatagramPacket receivePacket = new DatagramPacket(receive, receive.length); //todo ???
+                    DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                     serverSocket.receive(receivePacket);
+                    System.out.println("received packet!");
                     MessageProtos.Message message = SerializationWrapper.deserialize(new ByteArrayInputStream(receivePacket.getData()));
                     List<Integer> array = new ArrayList<>(message.getArrayList());
 

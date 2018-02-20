@@ -1,5 +1,7 @@
 package com.simiyutin.javaii.client.communicators;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.simiyutin.javaii.client.MessageFactory;
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.SortAlgorithm;
@@ -10,32 +12,49 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class UDPSerialCommunicator {
-    public static void communicate(DatagramSocket socket, InetAddress address, int port, int arraySize) throws IOException {
+    public static boolean communicate(DatagramSocket socket, byte[] buffer, InetAddress address, int port, int arraySize) throws IOException {
         // request
-        List<Integer> array = IntStream.range(0, arraySize).
-                map(i -> ~i).sorted().map(i -> ~i) // reverse order
-                .boxed().collect(Collectors.toList());
-
-        MessageProtos.Message message = MessageProtos.Message.newBuilder().addAllArray(array).build();
-
+        MessageProtos.Message message = MessageFactory.createMessage(arraySize);
         ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
         SerializationWrapper.serialize(message, baos);
         byte[] sendData = baos.toByteArray();
-        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
+        System.arraycopy(sendData, 0, buffer, 0, sendData.length);
+        DatagramPacket sendPacket = new DatagramPacket(buffer, buffer.length, address, port);
         socket.send(sendPacket);
 
-        byte[] receiveData = new byte[1024];
-        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-        socket.receive(receivePacket);
-        ByteArrayInputStream bais = new ByteArrayInputStream(receiveData);
-        MessageProtos.Message response = SerializationWrapper.deserialize(bais);
-        List<Integer> result = response.getArrayList();
-        SortAlgorithm.checkSorted(array, result);
+        // response
+//        System.out.println(String.format("client #%d, packet %d: sent!", id, i));
+        DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
+        try {
+            socket.receive(receivePacket);
+        } catch (SocketTimeoutException ex) {
+            System.out.println("got timeout, trying again");
+            return false;
+        }
+
+//        System.out.println(String.format("client #%d, packet %d: received!", id, i));
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(buffer);
+        try {
+            MessageProtos.Message response = SerializationWrapper.deserialize(bais);
+            List<Integer> result = response.getArrayList();
+            SortAlgorithm.checkSorted(message.getArrayList(), result);
+        } catch (InvalidProtocolBufferException ex) {
+            System.out.println("invalid message, trying again");
+            return false;
+        } catch (AssertionError ex) {
+            System.out.println("unexpected message, trying again");
+            return false;
+        }
+
+        return true;
     }
 }
