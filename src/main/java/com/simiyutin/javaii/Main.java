@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
 
         String selectedArch = args[0];
-        int X = Integer.parseInt(args[1]);
+        int numberOfRequests = Integer.parseInt(args[1]);
         String varying = args[2];
         int varMin = Integer.parseInt(args[3]);
         int varMax = Integer.parseInt(args[4]);
@@ -33,7 +33,7 @@ public class Main {
 
         runTestFromParams(
                 selectedArch,
-                X,
+                numberOfRequests,
                 varying,
                 varMin,
                 varMax,
@@ -46,7 +46,7 @@ public class Main {
     }
 
     private static void allArchsRun() {
-        int X = 20;
+        int numberOfRequests = 20;
         String varying = "N";
         int varMin = 1000;
         int varMax = 5000;
@@ -69,7 +69,7 @@ public class Main {
         for (String selectedArch : archs) {
             runTestFromParams(
                     selectedArch,
-                    X,
+                    numberOfRequests,
                     varying,
                     varMin,
                     varMax,

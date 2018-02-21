@@ -128,6 +128,8 @@ public class TCPAsyncServer extends Server {
             } else {
                 buffer.clear();
                 attachment.serveStatistic.setEndTime();
+                serveStatistics.add(attachment.serveStatistic);
+                attachment.serveStatistic = null;
                 socket.read(buffer, attachment, new ReaderHandler());
             }
         }
@@ -167,7 +169,6 @@ public class TCPAsyncServer extends Server {
                 if (data == null) {
                     int byteSize = buffer.getInt();
                     serveStatistic = new ServeStatistic();
-                    serveStatistics.add(serveStatistic);
                     serveStatistic.setStartTime();
                     data = new byte[byteSize];
                 } else if (offset == data.length) {
