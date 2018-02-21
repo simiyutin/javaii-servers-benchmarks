@@ -14,38 +14,74 @@ if __name__ == '__main__':
     files = glob.glob("*")
     files.remove("main.py")
 
-    m1xx = []
-    m1yy = []
+    metricsNames = {
+        'm1': 'mean client work time',
+        'm2': 'mean server serve time',
+        'm3': 'mean server sort time',
+    }
+
+    optNames = {
+        'N': 'array size',
+        'D': 'client delta',
+        'M': 'number of clients'
+    }
+
+    data = dict()
 
     for file in files:
         part = file.split('_')
         arch = "_".join(part[:2])
-        arraySize = int(part[2])
-        deltaMillis = int(part[3])
-        numberOfRequests = int(part[4])
-        numberOfClients = int(part[5])
+        varyingOpt = part[2]
+        opts = dict()
+        arraySize = int(part[3])  # N
+        opts['N'] = arraySize
+        deltaMillis = int(part[4])  # D
+        opts['D'] = deltaMillis
+        numberOfRequests = int(part[5])
+        numberOfClients = int(part[6])  # M
+        opts['M'] = numberOfClients
 
-        print(arch, arraySize, deltaMillis, numberOfRequests, numberOfClients)
         with open(file, 'r') as f:
             m1 = str2arr(f.readline())
             m2 = str2arr(f.readline())
             m3 = str2arr(f.readline())
 
-        m1yy.append(np.max(m1))
-        m1xx.append(arraySize) #todo pass varying in the name
+        metrics = data.get(varyingOpt, dict())
+        # todo remove duplication
+        graph = metrics.get('m1', dict())
+        grapharch = graph.get(arch, {'xx': [], 'yy': []})
+        grapharch['yy'].append(np.mean(m1)) # todo mean or max or smth else?
+        grapharch['xx'].append(opts[varyingOpt])
+        graph[arch] = grapharch
+        metrics['m1'] = graph
+        graph = metrics.get('m2', dict())
+        grapharch = graph.get(arch, {'xx': [], 'yy': []})
+        grapharch['yy'].append(np.mean(m2))
+        grapharch['xx'].append(opts[varyingOpt])
+        graph[arch] = grapharch
+        metrics['m2'] = graph
+        graph = metrics.get('m3', dict())
+        grapharch = graph.get(arch, {'xx': [], 'yy': []})
+        grapharch['yy'].append(np.mean(m3))
+        grapharch['xx'].append(opts[varyingOpt])
+        graph[arch] = grapharch
+        metrics['m3'] = graph
+        data[varyingOpt] = metrics
 
-
-    m1xx = np.array(m1xx)
-    m1yy = np.array(m1yy)
-
-    sortInd = m1xx.argsort()
-    m1xx = m1xx[sortInd]
-    m1yy = m1yy[sortInd]
-
-    plt.plot(m1xx, m1yy)
-    plt.title('tcp_serial')
-    plt.ylabel('mean work time')
-    plt.xlabel('array size')
-    plt.show()
+    for varyingOpt, metrics in data.items():
+        for metric, graph in metrics.items():
+            # todo init subgraph
+            for arch, values in graph.items():
+                # todo plot different colors
+                xx = np.array(values['xx'])
+                yy = np.array(values['yy'])
+                sortInd = xx.argsort()
+                xx = xx[sortInd]
+                yy = yy[sortInd]
+                plt.plot(xx, yy)
+                plt.title(arch)
+                plt.ylabel(metricsNames[metric])
+                plt.xlabel(optNames[varyingOpt])
+                plt.show()
 
 

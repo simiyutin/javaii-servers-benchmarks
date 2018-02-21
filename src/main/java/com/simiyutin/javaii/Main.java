@@ -57,7 +57,7 @@ public class Main {
             conf.port = 11111;
 
             ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration(selectedArch, conf);
-            runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, selectedArch, statisticsProcessor);
+            runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, selectedArch, varying, statisticsProcessor);
             try {
                 TimeUnit.SECONDS.sleep(5);
             } catch (InterruptedException e) {
@@ -82,7 +82,7 @@ public class Main {
 
     }
 
-    private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier, Configuration conf, String curArch, StatisticsProcessor statisticsProcessor) {
+    private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier, Configuration conf, String curArch, String varyingOpt, StatisticsProcessor statisticsProcessor) {
         System.out.println("starting server..");
         Server server = serverSupplier.get();
         if (server != null) {
@@ -121,6 +121,6 @@ public class Main {
                 clientWorkTimeStatistics,
                 server.getSortTimeStatistics(),
                 server.getServeTimeStatistics(),
-                conf, curArch);
+                conf, curArch, varyingOpt);
     }
 }

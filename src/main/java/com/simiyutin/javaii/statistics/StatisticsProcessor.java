@@ -10,11 +10,12 @@ public class StatisticsProcessor {
                         List<ServerSortTimeStatistic> serverSortTimeStatistics,
                         List<ServerServeTimeStatistic> serverServeTimeStatistics,
                         Configuration conf,
-                        String serverName) {
+                        String serverName, String varyingName) {
 
         String fileName = String.format(
-                "data/%s_%d_%d_%d_%d",
+                "data/%s_%s_%d_%d_%d_%d",
                 serverName,
+                varyingName,
                 conf.clientArraySize,
                 conf.clientDeltaMillis,
                 conf.clientNumberOfRequests,
