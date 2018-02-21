@@ -35,6 +35,7 @@ public class UDPSerialCommunicator {
         try {
             socket.receive(receivePacket);
         } catch (SocketTimeoutException ex) {
+            System.out.println("timeout");
             return false;
         }
 

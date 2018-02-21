@@ -27,12 +27,13 @@ public class UDPClient extends Client {
     @Override
     public void startImpl() throws IOException {
         DatagramSocket socket = new DatagramSocket();
-        int timeout = Math.abs(new Random(id).nextInt() % 1000);
+        int timeout = Math.abs(new Random(id).nextInt() % 10000);
         socket.setSoTimeout(timeout);
         InetAddress address = InetAddress.getByName(conf.host);
         for (int i = 0; i < conf.clientNumberOfRequests;) {
             boolean succesfullyCommunicated = UDPSerialCommunicator.communicate(socket, buffer, address, conf.port, conf.clientArraySize);
             if (!succesfullyCommunicated) {
+                System.out.println("client: retry");
                 continue;
             }
             if (i != conf.clientNumberOfRequests - 1) {
