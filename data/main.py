@@ -68,20 +68,28 @@ if __name__ == '__main__':
         metrics['m3'] = graph
         data[varyingOpt] = metrics
 
+    index = 1
     for varyingOpt, metrics in data.items():
         for metric, graph in metrics.items():
-            # todo init subgraph
+            x = index / 3
+            y = index % 3
+            plt.subplot(3, 3, index)
+            legendHandles = []
             for arch, values in graph.items():
-                # todo plot different colors
                 xx = np.array(values['xx'])
                 yy = np.array(values['yy'])
                 sortInd = xx.argsort()
                 xx = xx[sortInd]
                 yy = yy[sortInd]
-                plt.plot(xx, yy)
-                plt.title(arch)
+                archline = plt.plot(xx, yy, label=arch)
+                legendHandles.append(archline[0])
                 plt.ylabel(metricsNames[metric])
                 plt.xlabel(optNames[varyingOpt])
-                plt.show()
+
+            plt.legend(handles=legendHandles)
+            index += 1
+
+    plt.tight_layout()
+    plt.show()
 
 

@@ -29,7 +29,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        String selectedArch = "tcp_serial";
+        String selectedArch = "tcp_threadpool";
         int X = 1000;
         String varying = "N";
         int varMin = 1000;
