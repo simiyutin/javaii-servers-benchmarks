@@ -2,8 +2,9 @@ package com.simiyutin.javaii.server.tcp_nonblocking;
 
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.statistics.ServeStatistic;
 import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
-import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
+import com.simiyutin.javaii.statistics.SortStatistic;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -23,19 +24,19 @@ public class SocketChannelProcessor implements Runnable {
     private final Selector writeSelector;
     private final ExecutorService threadPool;
     private boolean stopped = false;
-    private final List<ServerSortTimeStatistic> sortTimeStatistics;
-    private final List<ServerServeTimeStatistic> serveTimeStatistics;
+    private final List<SortStatistic> sortStatistics;
+    private final List<ServeStatistic> serveStatistics;
     private final Set<SelectionKey> cancelledKeys;
     private final Set<SelectionKey> resurrectedKeys;
 
-    public SocketChannelProcessor(Queue<SocketChannel> channelsQueue, List<ServerSortTimeStatistic> sortTimeStatistics, List<ServerServeTimeStatistic> serveTimeStatistics) throws IOException {
+    public SocketChannelProcessor(Queue<SocketChannel> channelsQueue, List<SortStatistic> sortStatistics, List<ServeStatistic> serveStatistics) throws IOException {
         this.channelsQueue = channelsQueue;
         this.resultQueue = new ArrayBlockingQueue<>(1024);
         this.readSelector = Selector.open();
         this.writeSelector = Selector.open();
         this.threadPool = Executors.newCachedThreadPool();
-        this.sortTimeStatistics = sortTimeStatistics;
-        this.serveTimeStatistics = serveTimeStatistics;
+        this.sortStatistics = sortStatistics;
+        this.serveStatistics = serveStatistics;
         this.cancelledKeys = new HashSet<>();
         this.resurrectedKeys = new HashSet<>();
     }
@@ -114,16 +115,20 @@ public class SocketChannelProcessor implements Runnable {
         SocketChannel channel = (SocketChannel) key.channel();
         SocketChannelReader reader = (SocketChannelReader) key.attachment();
         reader.read(channel);
-        List<MessageProtos.Message> fullMessages = reader.getFullMessages();
+        List<MessageStatistic> fullMessages = reader.getFullMessages();
 
-        for (MessageProtos.Message message : fullMessages) {
+        for (MessageStatistic messageStatistic : fullMessages) {
             long startTime = System.currentTimeMillis();
             threadPool.submit(() -> {
-                List<Integer> array = new ArrayList<>(message.getArrayList());
-                long sortTime = SortAlgorithm.sort(array);
-                sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
-                MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
-                resultQueue.add(new Result(response, channel, startTime));
+                List<Integer> array = new ArrayList<>(messageStatistic.message.getArrayList());
+                SortStatistic sortStatistic = new SortStatistic();
+                sortStatistic.setStartTime();
+                SortAlgorithm.sort(array);
+                sortStatistic.setEndTime();
+                sortStatistics.add(sortStatistic);
+                serveStatistics.add(messageStatistic.serveStatistic); // модифицируем позже
+                messageStatistic.message = MessageProtos.Message.newBuilder().addAllArray(array).build();;
+                resultQueue.add(new Result(messageStatistic, channel, startTime));
             });
         }
     }
@@ -132,10 +137,7 @@ public class SocketChannelProcessor implements Runnable {
         Result result = resultQueue.poll();
 
         while (result != null) {
-            long endTime = System.currentTimeMillis();
-            serveTimeStatistics.add(new ServerServeTimeStatistic(endTime - result.startTime));
-
-            MessageProtos.Message message = result.message;
+            MessageStatistic message = result.message;
             SocketChannel channel = result.channel;
             SelectionKey key = channel.keyFor(writeSelector);
             if (key == null) {
@@ -171,11 +173,11 @@ public class SocketChannelProcessor implements Runnable {
     }
 
     private static class Result {
-        MessageProtos.Message message;
+        MessageStatistic message;
         SocketChannel channel;
         long startTime;
 
-        public Result(MessageProtos.Message message, SocketChannel channel, long startTime) {
+        public Result(MessageStatistic message, SocketChannel channel, long startTime) {
             this.message = message;
             this.channel = channel;
             this.startTime = startTime;

@@ -4,8 +4,10 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.statistics.ServeStatistic;
 import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
 import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
+import com.simiyutin.javaii.statistics.SortStatistic;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -73,6 +75,7 @@ public class TCPAsyncServer extends Server {
         ByteBuffer buffer;
         AsynchronousSocketChannel socket;
         Reader reader;
+        ServeStatistic serveStatistic;
     }
 
     private class ReaderHandler implements CompletionHandler<Integer, Attachment> {
@@ -88,9 +91,11 @@ public class TCPAsyncServer extends Server {
             } else {
                 MessageProtos.Message message = reader.parseMessage();
                 List<Integer> array = new ArrayList<>(message.getArrayList());
-                long sortTime = SortAlgorithm.sort(array);
-                sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
-                serveTimeStatistics.add(new ServerServeTimeStatistic(sortTime));
+                SortStatistic sortStatistic = new SortStatistic();
+                sortStatistic.setStartTime();
+                SortAlgorithm.sort(array);
+                sortStatistic.setEndTime();
+                sortStatistics.add(sortStatistic);
                 MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
                 byte[] bytes = response.toByteArray();
                 if (buffer.capacity() < bytes.length + 4) {
@@ -101,6 +106,7 @@ public class TCPAsyncServer extends Server {
                 buffer.put(bytes);
                 buffer.flip();
                 attachment.reader = new Reader();
+                attachment.serveStatistic = reader.getServeStatistic();
                 socket.write(buffer, attachment, new WriterHandler());
             }
         }
@@ -121,6 +127,7 @@ public class TCPAsyncServer extends Server {
                 socket.write(buffer, attachment, this);
             } else {
                 buffer.clear();
+                attachment.serveStatistic.setEndTime();
                 socket.read(buffer, attachment, new ReaderHandler());
             }
         }
@@ -132,9 +139,10 @@ public class TCPAsyncServer extends Server {
     }
 
     // должен считать ровно один массив
-    private static class Reader {
+    private class Reader {
         private byte[] data = null;
         private int offset = 0;
+        private ServeStatistic serveStatistic = null;
 
         boolean finished() {
             return data != null && data.length == offset;
@@ -156,9 +164,11 @@ public class TCPAsyncServer extends Server {
                 if (data == null && buffer.remaining() < 4) {
                     break;
                 }
-
                 if (data == null) {
                     int byteSize = buffer.getInt();
+                    serveStatistic = new ServeStatistic();
+                    serveStatistics.add(serveStatistic);
+                    serveStatistic.setStartTime();
                     data = new byte[byteSize];
                 } else if (offset == data.length) {
                     throw new AssertionError("lolwut");
@@ -170,6 +180,10 @@ public class TCPAsyncServer extends Server {
             }
 
             buffer.compact();
+        }
+
+        public ServeStatistic getServeStatistic() {
+            return serveStatistic;
         }
     }
 }

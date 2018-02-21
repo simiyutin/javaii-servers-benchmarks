@@ -5,8 +5,10 @@ import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.statistics.ServeStatistic;
 import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
 import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
+import com.simiyutin.javaii.statistics.SortStatistic;
 
 import java.io.*;
 import java.net.DatagramPacket;
@@ -45,8 +47,6 @@ public class UDPThreadpoolServer extends Server {
                 try {
                     Response response = writeQueue.poll();
                     while (response != null) {
-                        long endTime = System.currentTimeMillis();
-                        serveTimeStatistics.add(new ServerServeTimeStatistic(endTime - response.startTime));
 
                         List<Integer> array = response.array;
                         MessageProtos.Message message = MessageProtos.Message.newBuilder().addAllArray(array).build();
@@ -54,8 +54,11 @@ public class UDPThreadpoolServer extends Server {
                         SerializationWrapper.serialize(message, baos);
 
                         byte[] data = baos.toByteArray();
-                        DatagramPacket responsePacket = new DatagramPacket(data, data.length, response.address, response.port); // todo ???
+                        DatagramPacket responsePacket = new DatagramPacket(data, data.length, response.address, response.port);
                         serverSocket.send(responsePacket);
+                        response.serveStatistic.setEndTime();
+                        serveStatistics.add(response.serveStatistic);
+
                         response = writeQueue.poll();
                     }
 
@@ -79,18 +82,25 @@ public class UDPThreadpoolServer extends Server {
                 try {
                     DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                     serverSocket.receive(receivePacket);
+                    ServeStatistic serveStatistic = new ServeStatistic();
+                    serveStatistic.setStartTime();
+
                     MessageProtos.Message message = SerializationWrapper.deserialize(new ByteArrayInputStream(receivePacket.getData()));
                     List<Integer> array = new ArrayList<>(message.getArrayList());
 
                     long startTime = System.currentTimeMillis();
                     threadPool.submit(() -> {
-                        long sortTime = SortAlgorithm.sort(array);
-                        sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
+                        SortStatistic sortStatistic = new SortStatistic();
+                        sortStatistic.setStartTime();
+                        SortAlgorithm.sort(array);
+                        sortStatistic.setEndTime();
+                        sortStatistics.add(sortStatistic);
                         Response response = new Response();
                         response.array = array;
                         response.address = receivePacket.getAddress();
                         response.port = receivePacket.getPort();
                         response.startTime = startTime;
+                        response.serveStatistic = serveStatistic;
                         writeQueue.add(response);
                     });
                 }
@@ -124,5 +134,6 @@ public class UDPThreadpoolServer extends Server {
         InetAddress address;
         int port;
         long startTime;
+        ServeStatistic serveStatistic;
     }
 }

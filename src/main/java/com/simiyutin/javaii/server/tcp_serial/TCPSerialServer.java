@@ -2,8 +2,7 @@ package com.simiyutin.javaii.server.tcp_serial;
 
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.handlers.TCPSerialHandler;
-import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
-import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
+import com.simiyutin.javaii.statistics.*;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -26,10 +25,12 @@ public class TCPSerialServer extends Server {
             while (!Thread.interrupted() && !serverSocket.isClosed()) {
                 try {
                     Socket socket = serverSocket.accept();
-                    long sortTime = TCPSerialHandler.handle(socket);
+                    SortStatistic sortStatistic = new SortStatistic();
+                    ServeStatistic serveStatistic = new ServeStatistic();
+                    TCPSerialHandler.handle(socket, sortStatistic, serveStatistic);
                     socket.close();
-                    sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
-                    serveTimeStatistics.add(new ServerServeTimeStatistic(sortTime));
+                    sortStatistics.add(sortStatistic);
+                    serveStatistics.add(serveStatistic);
                 }
                 catch (SocketException ignored) {
                     return;

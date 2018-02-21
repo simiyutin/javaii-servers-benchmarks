@@ -2,8 +2,10 @@ package com.simiyutin.javaii.server.tcp_threadpool;
 
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.handlers.TCPSerialHandler;
+import com.simiyutin.javaii.statistics.ServeStatistic;
 import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
 import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
+import com.simiyutin.javaii.statistics.SortStatistic;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -40,9 +42,11 @@ public class TCPThreadPoolServer extends Server {
                     threadPool.submit(() -> {
                         while (true) {
                             try {
-                                long sortTime = TCPSerialHandler.handle(socket);
-                                sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
-                                serveTimeStatistics.add(new ServerServeTimeStatistic(sortTime));
+                                SortStatistic sortStatistic = new SortStatistic();
+                                ServeStatistic serveStatistic = new ServeStatistic();
+                                TCPSerialHandler.handle(socket, sortStatistic, serveStatistic);
+                                sortStatistics.add(sortStatistic);
+                                serveStatistics.add(serveStatistic);
                             }
                             catch (EOFException ex) {
                                 return;

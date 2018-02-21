@@ -1,7 +1,8 @@
 package com.simiyutin.javaii.server;
 
-import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
-import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
+import com.simiyutin.javaii.statistics.ServeStatistic;
+import com.simiyutin.javaii.statistics.SortStatistic;
+import com.simiyutin.javaii.statistics.Statistic;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,15 +10,15 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class Server {
-    protected final List<ServerSortTimeStatistic> sortTimeStatistics = Collections.synchronizedList(new ArrayList<>());
-    protected final List<ServerServeTimeStatistic> serveTimeStatistics = Collections.synchronizedList(new ArrayList<>());
+    protected final List<SortStatistic> sortStatistics = Collections.synchronizedList(new ArrayList<>());
+    protected final List<ServeStatistic> serveStatistics = Collections.synchronizedList(new ArrayList<>());
 
     public abstract void start() throws IOException;
     public abstract void stop();
-    public List<ServerSortTimeStatistic> getSortTimeStatistics() {
-        return sortTimeStatistics;
+    public List<SortStatistic> getSortStatistics() {
+        return sortStatistics;
     };
-    public List<ServerServeTimeStatistic> getServeTimeStatistics() {
-        return serveTimeStatistics;
+    public List<ServeStatistic> getServeStatistics() {
+        return serveStatistics;
     };
 }

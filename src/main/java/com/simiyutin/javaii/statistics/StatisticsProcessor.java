@@ -1,5 +1,6 @@
 package com.simiyutin.javaii.statistics;
 
+import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.testarch.Configuration;
 
 import java.io.*;
@@ -7,8 +8,8 @@ import java.util.List;
 
 public class StatisticsProcessor {
     public void process(List<ClientWorkTimeStatistic> clientWorkTimeStatistics,
-                        List<ServerSortTimeStatistic> serverSortTimeStatistics,
-                        List<ServerServeTimeStatistic> serverServeTimeStatistics,
+                        List<SortStatistic> serverSortTimeStatistics,
+                        List<ServeStatistic> serverServeTimeStatistics,
                         Configuration conf,
                         String serverName, String varyingName) {
 
@@ -26,12 +27,12 @@ public class StatisticsProcessor {
                 out.write(s.timeMillis + ", ");
             }
             out.write("\n");
-            for (ServerServeTimeStatistic s : serverServeTimeStatistics) {
-                out.write(s.timeMillis + ", ");
+            for (ServeStatistic s : serverServeTimeStatistics) {
+                out.write(s.getDiffTime() + ", ");
             }
             out.write("\n");
-            for (ServerSortTimeStatistic s : serverSortTimeStatistics) {
-                out.write(s.timeMillis + ", ");
+            for (SortStatistic s : serverSortTimeStatistics) {
+                out.write(s.getDiffTime() + ", ");
             }
         } catch (IOException e) {
             e.printStackTrace();

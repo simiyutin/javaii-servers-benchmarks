@@ -5,15 +5,16 @@ import com.simiyutin.javaii.proto.MessageProtos;
 import com.simiyutin.javaii.proto.SerializationWrapper;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.server.SortAlgorithm;
+import com.simiyutin.javaii.statistics.ServeStatistic;
 import com.simiyutin.javaii.statistics.ServerServeTimeStatistic;
 import com.simiyutin.javaii.statistics.ServerSortTimeStatistic;
+import com.simiyutin.javaii.statistics.SortStatistic;
 
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class UDPThreadPerRequestServer extends Server {
@@ -35,13 +36,17 @@ public class UDPThreadPerRequestServer extends Server {
                 try {
                     DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                     serverSocket.receive(receivePacket);
+                    ServeStatistic serveStatistic = new ServeStatistic();
+                    serveStatistic.setStartTime();
                     new Thread(() -> {
                         try {
                             MessageProtos.Message message = SerializationWrapper.deserialize(new ByteArrayInputStream(receivePacket.getData()));
                             List<Integer> array = new ArrayList<>(message.getArrayList());
-                            long sortTime = SortAlgorithm.sort(array);
-                            sortTimeStatistics.add(new ServerSortTimeStatistic(sortTime));
-                            serveTimeStatistics.add(new ServerServeTimeStatistic(sortTime));
+                            SortStatistic sortStatistic = new SortStatistic();
+                            sortStatistic.setStartTime();
+                            SortAlgorithm.sort(array);
+                            sortStatistic.setEndTime();
+                            sortStatistics.add(sortStatistic);
 
                             MessageProtos.Message response = MessageProtos.Message.newBuilder().addAllArray(array).build();
                             ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
@@ -51,7 +56,8 @@ public class UDPThreadPerRequestServer extends Server {
                             System.arraycopy(bytes, 0, buffer, 0, bytes.length);
                             DatagramPacket responsePacket = new DatagramPacket(buffer, buffer.length, receivePacket.getAddress(), receivePacket.getPort()); // todo ???
                             serverSocket.send(responsePacket);
-
+                            serveStatistic.setEndTime();
+                            serveStatistics.add(serveStatistic);
                         } catch (InvalidProtocolBufferException ex) {
                             System.out.println("server: invalid protobuf message");
                         } catch (IOException ex) {

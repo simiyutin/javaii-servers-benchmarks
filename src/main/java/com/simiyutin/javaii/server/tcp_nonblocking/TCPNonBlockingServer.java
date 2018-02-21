@@ -27,7 +27,7 @@ public class TCPNonBlockingServer extends Server {
     public void start() throws IOException {
         this.serverSocket = ServerSocketChannel.open();
         this.serverSocket.bind(new InetSocketAddress(port));
-        channelsProcessor = new Thread(new SocketChannelProcessor(channelsQueue, sortTimeStatistics, serveTimeStatistics));
+        channelsProcessor = new Thread(new SocketChannelProcessor(channelsQueue, sortStatistics, serveStatistics));
         channelsProcessor.start();
 
         listener = new Thread(() -> {
