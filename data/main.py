@@ -69,6 +69,7 @@ if __name__ == '__main__':
         data[varyingOpt] = metrics
 
     index = 1
+    legendInitialized = False
     for varyingOpt, metrics in data.items():
         for metric, graph in metrics.items():
             x = index / 3
@@ -86,7 +87,10 @@ if __name__ == '__main__':
                 plt.ylabel(metricsNames[metric])
                 plt.xlabel(optNames[varyingOpt])
 
-            plt.legend(handles=legendHandles)
+            if not legendInitialized:
+                plt.legend(handles=legendHandles, bbox_to_anchor=(1.0, 1.05))
+                legendInitialized = True
+
             index += 1
 
     plt.tight_layout()
