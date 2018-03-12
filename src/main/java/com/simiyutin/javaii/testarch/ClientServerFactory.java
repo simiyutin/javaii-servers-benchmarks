@@ -13,7 +13,7 @@ import com.simiyutin.javaii.server.udp_trivial.UDPTrivialServer;
 
 import java.util.function.Supplier;
 
-public class ApplicationConfigurationFactory {
+public class ClientServerFactory {
     public static ClientServer getConfiguration(String serverType, Configuration conf) {
         Supplier<Client> clientSupplier = null;
         Supplier<Server> serverSupplier = null;

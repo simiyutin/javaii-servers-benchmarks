@@ -4,7 +4,7 @@ import com.simiyutin.javaii.client.Client;
 import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.statistics.ClientStatistic;
 import com.simiyutin.javaii.statistics.StatisticsProcessor;
-import com.simiyutin.javaii.testarch.ApplicationConfigurationFactory;
+import com.simiyutin.javaii.testarch.ClientServerFactory;
 import com.simiyutin.javaii.testarch.ClientRunner;
 import com.simiyutin.javaii.testarch.ClientServer;
 import com.simiyutin.javaii.testarch.Configuration;
@@ -31,7 +31,7 @@ public class Main {
         String thirdParam = args[8];
         int thirdVal = Integer.parseInt(args[9]);
 
-        runTestFromParams(
+        runTestSeries(
                 selectedArch,
                 numberOfRequests,
                 varying,
@@ -67,7 +67,7 @@ public class Main {
         );
 
         for (String selectedArch : archs) {
-            runTestFromParams(
+            runTestSeries(
                     selectedArch,
                     numberOfRequests,
                     varying,
@@ -82,7 +82,7 @@ public class Main {
         }
     }
 
-    private static void runTestFromParams(
+    private static void runTestSeries(
             String selectedArch,
             int X,
             String varying,
@@ -116,8 +116,8 @@ public class Main {
                     conf.clientArraySize, conf.clientDeltaMillis, conf.clientNumberOfRequests, conf.numberOfClients, conf.host, conf.port
                     ));
 
-            ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration(selectedArch, conf);
-            runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, selectedArch, varying, statisticsProcessor);
+            ClientServer clientServer = ClientServerFactory.getConfiguration(selectedArch, conf);
+            runTestWithConfig(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, selectedArch, varying, statisticsProcessor);
             try {
                 System.out.println("waiting for port freeing..");
                 TimeUnit.SECONDS.sleep(2);
@@ -129,7 +129,7 @@ public class Main {
         }
     }
 
-    private static void runTest(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier, Configuration conf, String curArch, String varyingOpt, StatisticsProcessor statisticsProcessor) {
+    private static void runTestWithConfig(Supplier<Server> serverSupplier, Supplier<Client> clientSupplier, Configuration conf, String curArch, String varyingOpt, StatisticsProcessor statisticsProcessor) {
         System.out.println("starting server..");
         Server server = serverSupplier.get();
         if (server != null) {
