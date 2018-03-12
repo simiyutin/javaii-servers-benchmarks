@@ -111,6 +111,11 @@ public class Main {
             conf.host = "localhost";
             conf.port = 11111;
 
+            System.out.println(String.format(
+                    "array size: %d, delta: %d, number of requests: %d, number of clients: %d, host: %s, port: %d",
+                    conf.clientArraySize, conf.clientDeltaMillis, conf.clientNumberOfRequests, conf.numberOfClients, conf.host, conf.port
+                    ));
+
             ClientServer clientServer = ApplicationConfigurationFactory.getConfiguration(selectedArch, conf);
             runTest(clientServer.getServerSupplier(), clientServer.getClientSupplier(), conf, selectedArch, varying, statisticsProcessor);
             try {
