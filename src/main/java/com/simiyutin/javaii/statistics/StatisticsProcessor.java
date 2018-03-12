@@ -1,13 +1,14 @@
 package com.simiyutin.javaii.statistics;
 
-import com.simiyutin.javaii.server.Server;
 import com.simiyutin.javaii.testarch.Configuration;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 public class StatisticsProcessor {
-    public void process(List<ClientWorkTimeStatistic> clientWorkTimeStatistics,
+    public void process(List<ClientStatistic> clientWorkTimeStatistics,
                         List<SortStatistic> serverSortTimeStatistics,
                         List<ServeStatistic> serverServeTimeStatistics,
                         Configuration conf,
@@ -23,8 +24,8 @@ public class StatisticsProcessor {
                 conf.numberOfClients);
 
         try (BufferedWriter out = new BufferedWriter(new FileWriter(fileName))) {
-            for (ClientWorkTimeStatistic s : clientWorkTimeStatistics) {
-                out.write(s.timeMillis + ", ");
+            for (ClientStatistic s : clientWorkTimeStatistics) {
+                out.write(s.getDiffTime() + ", ");
             }
             out.write("\n");
             for (ServeStatistic s : serverServeTimeStatistics) {

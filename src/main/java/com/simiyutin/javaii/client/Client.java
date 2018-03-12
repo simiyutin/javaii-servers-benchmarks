@@ -1,26 +1,26 @@
 package com.simiyutin.javaii.client;
 
+import com.simiyutin.javaii.statistics.ClientStatistic;
 import com.simiyutin.javaii.testarch.Configuration;
-import com.simiyutin.javaii.statistics.ClientWorkTimeStatistic;
 
 import java.io.IOException;
 
 public abstract class Client {
     protected Configuration conf;
-    private ClientWorkTimeStatistic statistic;
+    private ClientStatistic statistic;
 
     public Client(Configuration conf) {
         this.conf = conf;
+        this.statistic = new ClientStatistic();
     }
 
     public void start() throws IOException {
-        long start = System.currentTimeMillis();
+        statistic.setStartTime();
         startImpl();
-        long end = System.currentTimeMillis();
-        statistic = new ClientWorkTimeStatistic(end - start);
+        statistic.setEndTime();
     }
 
-    public ClientWorkTimeStatistic getStatistic() {
+    public ClientStatistic getStatistic() {
         return statistic;
     }
 

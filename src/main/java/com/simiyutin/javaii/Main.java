@@ -2,7 +2,7 @@ package com.simiyutin.javaii;
 
 import com.simiyutin.javaii.client.Client;
 import com.simiyutin.javaii.server.Server;
-import com.simiyutin.javaii.statistics.ClientWorkTimeStatistic;
+import com.simiyutin.javaii.statistics.ClientStatistic;
 import com.simiyutin.javaii.statistics.StatisticsProcessor;
 import com.simiyutin.javaii.testarch.ApplicationConfigurationFactory;
 import com.simiyutin.javaii.testarch.ClientRunner;
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class Main {
-    private static final List<ClientWorkTimeStatistic> clientWorkTimeStatistics = Collections.synchronizedList(new ArrayList<>());
+    private static final List<ClientStatistic> clientWorkTimeStatistics = Collections.synchronizedList(new ArrayList<>());
 
     public static void main(String[] args) {
 

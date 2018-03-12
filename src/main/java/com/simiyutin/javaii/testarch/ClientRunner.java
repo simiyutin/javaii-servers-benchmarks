@@ -1,7 +1,7 @@
 package com.simiyutin.javaii.testarch;
 
 import com.simiyutin.javaii.client.Client;
-import com.simiyutin.javaii.statistics.ClientWorkTimeStatistic;
+import com.simiyutin.javaii.statistics.ClientStatistic;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.function.Supplier;
 public class ClientRunner implements Runnable {
     private final CyclicBarrier barrier;
     private final Supplier<Client> clientSupplier;
-    private final List<ClientWorkTimeStatistic> clientWorkTimeStatistics;
+    private final List<ClientStatistic> clientWorkTimeStatistics;
 
-    public ClientRunner(CyclicBarrier barrier, Supplier<Client> clientSupplier, List<ClientWorkTimeStatistic> clientWorkTimeStatistics) {
+    public ClientRunner(CyclicBarrier barrier, Supplier<Client> clientSupplier, List<ClientStatistic> clientWorkTimeStatistics) {
         this.barrier = barrier;
         this.clientSupplier = clientSupplier;
         this.clientWorkTimeStatistics = clientWorkTimeStatistics;
