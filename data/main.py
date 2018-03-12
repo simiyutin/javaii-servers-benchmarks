@@ -1,8 +1,7 @@
-from pandas import read_csv
 import glob
-import json
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def str2arr(str_row):
@@ -13,6 +12,7 @@ if __name__ == '__main__':
 
     files = glob.glob("*")
     files.remove("main.py")
+    files.remove("autorun.py")
 
     metricsNames = {
         'm1': 'mean client work time',
@@ -69,7 +69,7 @@ if __name__ == '__main__':
         data[varyingOpt] = metrics
 
     index = 1
-    legendInitialized = False
+    plt.figure(figsize=(15, 10))
     for varyingOpt, metrics in data.items():
         for metric, graph in metrics.items():
             x = index / 3
@@ -87,9 +87,7 @@ if __name__ == '__main__':
                 plt.ylabel(metricsNames[metric])
                 plt.xlabel(optNames[varyingOpt])
 
-            if not legendInitialized:
-                plt.legend(handles=legendHandles, bbox_to_anchor=(1.0, 1.05))
-                legendInitialized = True
+            plt.legend(handles=legendHandles)
 
             index += 1
 
